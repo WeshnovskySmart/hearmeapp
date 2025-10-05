@@ -1,5 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("[Client] 🏁 Скрипт завантажено. Версія 2.2 - Final Polish.");
+    console.log("[Client] 🏁 Скрипт завантажено. Версія 3.0 - Report System.");
+    
+    // Отримуємо всі елементи
     const allScreens = document.querySelectorAll('.w-full.max-w-md > div');
     const preloaderScreen = document.getElementById('preloader-screen');
     const onboardingScreen = document.getElementById('onboarding-screen');
@@ -10,12 +12,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const backgroundShapes = document.getElementById('background-shapes');
     const modal = document.getElementById('confirmation-modal');
     const cancelSearchBtn = document.getElementById('cancel-search-btn');
+    const reportBtn = document.getElementById('report-btn');
     
     let currentMode = null; 
     let timerInterval = null;
 
     function showScreen(screenToShow) {
-        console.log(`[Client UI] 🖥️ Показуємо екран: ${screenToShow.id}`);
         allScreens.forEach(screen => {
             screen.classList.add('hidden');
         });
@@ -66,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
         toast.className = `px-4 py-2 rounded-lg shadow-lg text-white text-sm ${isError ? 'bg-red-600' : 'glassmorphism'} fade-in`;
         toast.textContent = message;
         toastContainer.appendChild(toast);
-        setTimeout(() => { toast.remove(); }, 3400);
+        setTimeout(() => { toast.remove(); }, 4000);
     }
 
     let confirmCallback = null;
@@ -116,6 +118,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('end-chat-btn').addEventListener('click', () => {
         showModal('Завершення діалогу', 'Ви впевнені, що хочете завершити розмову?', endChat);
+    });
+    
+    reportBtn.addEventListener('click', () => {
+        showModal('Скарга на співрозмовника', 'Ви впевнені, що хочете поскаржитись на цього користувача за порушення правил?', () => {
+            sendMessage({ type: 'report_user' });
+            showToast("Вашу скаргу надіслано.");
+        });
     });
 
     document.getElementById('next-chat-btn').addEventListener('click', () => startSearch(currentMode));
@@ -185,9 +194,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     function stopTimer() { clearInterval(timerInterval); }
 
-    // =================================================================
-    // WEBRTC ЛОГІКА
-    // =================================================================
     let peerConnection;
     let localStream;
     let audioVisualizerCanvas, canvasCtx, visualizerAnimation;
@@ -203,21 +209,16 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     async function startVoiceChat(role) {
-        console.log(`[WebRTC] Починаємо голосовий чат у ролі: ${role}`);
         try {
             localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            
-            // Індикація власного голосу
             setupAudioVisualizer(localStream, userAvatar);
 
             peerConnection = new RTCPeerConnection(iceServers);
-            
             localStream.getTracks().forEach(track => {
                 peerConnection.addTrack(track, localStream);
             });
 
             peerConnection.ontrack = (event) => {
-                console.log('[WebRTC] Отримано віддалений аудіопотік!');
                 if (event.streams && event.streams[0]) {
                     remoteAudio.srcObject = event.streams[0];
                     setupAudioVisualizer(event.streams[0], partnerAvatar, true);
@@ -225,9 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
             };
 
             peerConnection.onicecandidate = (event) => {
-                if (event.candidate) {
-                    sendMessage({ type: 'webrtc_signal', signal: { candidate: event.candidate } });
-                }
+                if (event.candidate) { sendMessage({ type: 'webrtc_signal', signal: { candidate: event.candidate } }); }
             };
 
             if (role === 'caller') {
@@ -235,9 +234,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 await peerConnection.setLocalDescription(offer);
                 sendMessage({ type: 'webrtc_signal', signal: { sdp: peerConnection.localDescription } });
             }
-
         } catch (error) {
-            console.error("[WebRTC] Помилка доступу до мікрофона:", error);
             showToast("Не вдалося отримати доступ до мікрофона", true);
             endChat();
         }
@@ -253,7 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function setupAudioVisualizer(stream, avatarElement, isPartner = false) {
-        if (!isPartner) { // Для візуалізатора-캔버스 використовуємо тільки голос партнера
+        if (isPartner) {
             audioVisualizerCanvas = document.getElementById('audio-visualizer');
             canvasCtx = audioVisualizerCanvas.getContext('2d');
         }
@@ -270,26 +267,19 @@ document.addEventListener('DOMContentLoaded', () => {
         function draw() {
             requestAnimationFrame(draw);
             analyser.getByteFrequencyData(dataArray);
-
             let sum = 0;
-            for (let i = 0; i < bufferLength; i++) {
-                sum += dataArray[i];
-            }
+            for (let i = 0; i < bufferLength; i++) { sum += dataArray[i]; }
             const average = sum / bufferLength;
-
             avatarElement.classList.toggle('speaking', average > 15);
 
-            if (isPartner) {
+            if (isPartner && canvasCtx) {
                 canvasCtx.clearRect(0, 0, audioVisualizerCanvas.width, audioVisualizerCanvas.height);
                 const barWidth = (audioVisualizerCanvas.width / bufferLength) * 2.5;
-                let barHeight;
-                let x = 0;
-
+                let barHeight; let x = 0;
                 const gradient = canvasCtx.createLinearGradient(0, 0, audioVisualizerCanvas.width, 0);
                 gradient.addColorStop(0, "rgba(239, 68, 68, 0.7)");
                 gradient.addColorStop(1, "rgba(249, 115, 22, 0.7)");
                 canvasCtx.fillStyle = gradient;
-
                 for(let i = 0; i < bufferLength; i++) {
                     barHeight = dataArray[i] / 2.5;
                     canvasCtx.fillRect(x, (audioVisualizerCanvas.height - barHeight) / 2, barWidth, barHeight);
@@ -328,62 +318,52 @@ document.addEventListener('DOMContentLoaded', () => {
         userAvatar.classList.remove('speaking');
         partnerAvatar.classList.remove('speaking');
         if (canvasCtx) canvasCtx.clearRect(0, 0, audioVisualizerCanvas.width, audioVisualizerCanvas.height);
-        console.log('[WebRTC] Голосовий чат завершено та очищено.');
     }
 
-    // =================================================================
-    // WebSocket ЛОГІКА
-    // =================================="WebSocket"
     let socket = null;
     const SERVER_URL = "wss://hearmeapp.onrender.com";
 
     function connectToServer() {
-        console.log(`[Client] 🚀 Спроба підключення до сервера: ${SERVER_URL}`);
         socket = new WebSocket(SERVER_URL);
-
-        socket.onopen = function(event) {
-            console.log("[Client] ✅ З'єднання з сервером встановлено!");
+        socket.onopen = function() {
             showToast("З'єднано з сервером");
             sendMessage({ type: 'start_search', mode: currentMode });
         };
-
         socket.onmessage = function(event) {
             try {
                 const message = JSON.parse(event.data);
-
                 switch (message.type) {
                     case 'partner_found':
-                        if (searchScreen.classList.contains('hidden')) { return; }
+                        if (searchScreen.classList.contains('hidden')) return;
                         showChatScreen(currentMode);
-                        if (currentMode === 'voice') {
-                            startVoiceChat(message.role);
-                        }
+                        if (currentMode === 'voice') startVoiceChat(message.role);
                         break;
                     case 'text_message':
                         addMessage(message.content, 'partner');
                         break;
                     case 'partner_disconnected':
                         showToast("Співрозмовник від'єднався", true);
-                        if (!chatScreen.classList.contains('hidden')) { endChat(); }
+                        if (!chatScreen.classList.contains('hidden')) endChat();
                         break;
                     case 'webrtc_signal':
-                        if (peerConnection) { handleRtcSignal(message.signal); }
+                        if (peerConnection) handleRtcSignal(message.signal);
+                        break;
+                    case 'you_are_banned':
+                        showToast(`Вас заблоковано до: ${new Date(message.until).toLocaleString()}`, true);
+                        if (socket) socket.close();
+                        showScreen(mainScreen);
                         break;
                 }
             } catch (e) {
                  console.error("[Client] ❌ НЕ ВДАЛОСЯ ОБРОБИТИ ПОВІДОМЛЕННЯ:", e);
             }
         };
-
-        socket.onclose = function(event) {
-            console.warn("[Client] 🔌 З'єднання з сервером закрито.");
+        socket.onclose = function() {
             showToast("З'єднання з сервером втрачено", true);
             closeVoiceChat();
-            if (!mainScreen.classList.contains('hidden')) { showScreen(mainScreen); }
+            if (!mainScreen.classList.contains('hidden')) showScreen(mainScreen);
         };
-
-        socket.onerror = function(error) {
-            console.error(`[Client] ❌ Помилка WebSocket!`, error);
+        socket.onerror = function() {
             showToast("Помилка з'єднання з сервером", true);
         };
     }
@@ -391,8 +371,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function sendMessage(message) {
         if (socket && socket.readyState === WebSocket.OPEN) {
             socket.send(JSON.stringify(message));
-        } else {
-            console.error("[Client] Неможливо відправити повідомлення. З'єднання не встановлено.");
         }
     }
 });
