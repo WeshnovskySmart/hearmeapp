@@ -2,7 +2,7 @@
 const express = require("express");
 const http = require("http");
 const WebSocket = require("ws");
-const { v4: uuidv4 } = require("uuid"); // Для генерації унікальних ID
+const { v4: uuidv4 } = require("uuid");
 
 // Налаштовуємо сервер
 const port = process.env.PORT || 3000;
@@ -27,7 +27,7 @@ app.get("/", (req, res) => {
 // Головна логіка, яка спрацьовує при новому підключенні
 wss.on("connection", (ws) => {
     ws.id = uuidv4();
-    console.log(`✅ Новий користувач підключився: ${ws.id}`);
+    console.log(`[Connect] ✅ Новий користувач підключився: ${ws.id}`);
 
     ws.send(
         JSON.stringify({
@@ -39,32 +39,29 @@ wss.on("connection", (ws) => {
     ws.on("message", (message) => {
         try {
             const data = JSON.parse(message);
-            console.log(`📥 Отримано повідомлення від ${ws.id}:`, data);
+            console.log(`[Message] 📥 Отримано від ${ws.id}:`, data);
 
             switch (data.type) {
                 case "start_search":
                     handleStartSearch(ws, data.mode);
                     break;
-
                 case "cancel_search":
                     removeFromWaiting(ws);
                     break;
-
                 case "text_message":
                     handleTextMessage(ws, data.content);
                     break;
-
                 case "end_chat":
                     handleEndChat(ws);
                     break;
             }
         } catch (error) {
-            console.error("Помилка обробки повідомлення:", error);
+            console.error("[Error] Помилка обробки повідомлення:", error);
         }
     });
 
     ws.on("close", () => {
-        console.log(`🔌 Користувач ${ws.id} відключився.`);
+        console.log(`[Disconnect] 🔌 Користувач ${ws.id} відключився.`);
         handleDisconnection(ws);
     });
 });
@@ -72,35 +69,45 @@ wss.on("connection", (ws) => {
 function handleStartSearch(user, mode) {
     if (!user || user.readyState !== WebSocket.OPEN) return;
     if (!waitingUsers[mode])
-        return console.error(`Невірний режим пошуку: ${mode}`);
+        return console.error(`[Error] Невірний режим пошуку: ${mode}`);
+    console.log(`[Search] Користувач ${user.id} шукає '${mode}' чат.`);
 
-    // Спочатку видаляємо користувача з усіх черг, щоб уникнути дублікатів
+    // Спочатку видаляємо користувача з УСІХ черг, щоб уникнути дублікатів.
     removeFromWaiting(user);
 
-    const waitingPartner = waitingUsers[mode].find(
-        (p) => p && p.readyState === WebSocket.OPEN && p.id !== user.id,
+    // Шукаємо партнера у відповідній черзі.
+    const partnerIndex = waitingUsers[mode].findIndex(
+        (p) => p && p.readyState === WebSocket.OPEN,
     );
 
-    if (waitingPartner) {
-        console.log(
-            `🎉 Знайдено пару! ${user.id} та ${waitingPartner.id} у режимі "${mode}"`,
-        );
+    if (partnerIndex !== -1) {
+        // ПАРТНЕРА ЗНАЙДЕНО!
+        const partner = waitingUsers[mode][partnerIndex];
+        console.log(`[Match] 🎉 Знайдено пару! ${user.id} та ${partner.id}.`);
 
-        removeFromWaiting(waitingPartner);
+        // Негайно видаляємо партнера з черги, щоб його не знайшов хтось інший.
+        waitingUsers[mode].splice(partnerIndex, 1);
+        console.log(`[Queue] Партнер ${partner.id} видалений з черги.`);
 
+        // Створюємо для них чат
         const chatId = uuidv4();
-        activeChats[chatId] = { user1: user, user2: waitingPartner };
         user.chatId = chatId;
-        waitingPartner.chatId = chatId;
+        partner.chatId = chatId;
+        activeChats[chatId] = { user1: user, user2: partner };
+        console.log(`[Chat] Створено чат ${chatId}.`);
 
-        const partnerFoundMessage = JSON.stringify({ type: "partner_found" });
+        // Повідомляємо обох користувачів
+        const message = JSON.stringify({ type: "partner_found" });
 
-        if (user.readyState === WebSocket.OPEN) user.send(partnerFoundMessage);
-        if (waitingPartner.readyState === WebSocket.OPEN)
-            waitingPartner.send(partnerFoundMessage);
+        console.log(`[Notify] Повідомляємо ${user.id}...`);
+        if (user.readyState === WebSocket.OPEN) user.send(message);
+
+        console.log(`[Notify] Повідомляємо ${partner.id}...`);
+        if (partner.readyState === WebSocket.OPEN) partner.send(message);
     } else {
-        console.log(`⏳ Користувач ${user.id} доданий у чергу "${mode}"`);
+        // Якщо нікого немає, додаємо користувача у чергу
         waitingUsers[mode].push(user);
+        console.log(`[Queue] Користувач ${user.id} доданий у чергу '${mode}'.`);
     }
 }
 
@@ -113,10 +120,7 @@ function handleTextMessage(sender, content) {
 
     if (receiver && receiver.readyState === WebSocket.OPEN) {
         receiver.send(
-            JSON.stringify({
-                type: "text_message",
-                content: content,
-            }),
+            JSON.stringify({ type: "text_message", content: content }),
         );
     }
 }
@@ -127,7 +131,7 @@ function cleanupChat(chatId) {
         if (chat.user1) chat.user1.chatId = null;
         if (chat.user2) chat.user2.chatId = null;
         delete activeChats[chatId];
-        console.log(`🧹 Чат ${chatId} видалено.`);
+        console.log(`[Chat] 🧹 Чат ${chatId} видалено.`);
     }
 }
 
@@ -152,7 +156,7 @@ function removeFromWaiting(user) {
         if (index > -1) {
             waitingUsers[mode].splice(index, 1);
             console.log(
-                `🚶‍ Користувач ${user.id} видалений з черги "${mode}"`,
+                `[Queue] 🚶‍ Користувач ${user.id} видалений з черги "${mode}"`,
             );
         }
     });
