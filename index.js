@@ -11,7 +11,6 @@ const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
 // Створюємо "кімнати очікування"
-// Це об'єкти, де ми будемо зберігати користувачів, які чекають на співрозмовника
 const waitingUsers = {
     voice: [],
     text: [],
@@ -27,11 +26,9 @@ app.get("/", (req, res) => {
 
 // Головна логіка, яка спрацьовує при новому підключенні
 wss.on("connection", (ws) => {
-    // Присвоюємо кожному новому користувачеві унікальний ID
     ws.id = uuidv4();
     console.log(`✅ Новий користувач підключився: ${ws.id}`);
 
-    // Відправляємо привітальне повідомлення новому користувачеві
     ws.send(
         JSON.stringify({
             type: "welcome_message",
@@ -39,67 +36,66 @@ wss.on("connection", (ws) => {
         }),
     );
 
-    // Обробляємо повідомлення від користувача
     ws.on("message", (message) => {
         try {
             const data = JSON.parse(message);
             console.log(`📥 Отримано повідомлення від ${ws.id}:`, data);
 
-            // Обробляємо різні типи повідомлень
             switch (data.type) {
-                // Коли користувач починає пошук
                 case "start_search":
                     handleStartSearch(ws, data.mode);
                     break;
-                // Додамо інші обробники (відправка повідомлення, завершення чату) пізніше
+
+                case "text_message":
+                    handleTextMessage(ws, data.content);
+                    break;
+
+                case "end_chat":
+                    handleEndChat(ws);
+                    break;
             }
         } catch (error) {
             console.error("Помилка обробки повідомлення:", error);
         }
     });
 
-    // Обробляємо відключення користувача
     ws.on("close", () => {
         console.log(`🔌 Користувач ${ws.id} відключився.`);
-        // Потрібно буде додати логіку для завершення чату, якщо користувач був у ньому
+        handleDisconnection(ws);
     });
 });
 
-// Функція для обробки початку пошуку
 function handleStartSearch(user, mode) {
-    // Перевіряємо, чи існує така "кімната очікування" (voice або text)
     if (!waitingUsers[mode]) {
         console.error(`Невірний режим пошуку: ${mode}`);
         return;
     }
 
-    // Шукаємо партнера у списку очікування
+    // Очищуємо "привидів" з черги
+    waitingUsers[mode] = waitingUsers[mode].filter(
+        (p) => p.readyState === WebSocket.OPEN,
+    );
+
     const waitingPartner = waitingUsers[mode].find((p) => p.id !== user.id);
 
     if (waitingPartner) {
-        // Якщо партнер знайдений!
         console.log(
             `🎉 Знайдено пару! ${user.id} та ${waitingPartner.id} у режимі "${mode}"`,
         );
 
-        // Видаляємо партнера зі списку очікування
         waitingUsers[mode] = waitingUsers[mode].filter(
             (p) => p.id !== waitingPartner.id,
         );
 
-        // Створюємо для них чат
         const chatId = uuidv4();
         activeChats[chatId] = [user, waitingPartner];
         user.chatId = chatId;
         waitingPartner.chatId = chatId;
 
-        // Повідомляємо обох, що пара знайдена
         user.send(JSON.stringify({ type: "partner_found" }));
         waitingPartner.send(JSON.stringify({ type: "partner_found" }));
     } else {
-        // Якщо нікого немає, додаємо користувача у список очікування
         console.log(`⏳ Користувач ${user.id} доданий у чергу "${mode}"`);
-        // Переконуємось, що користувач не в інших чергах
         Object.keys(waitingUsers).forEach((key) => {
             waitingUsers[key] = waitingUsers[key].filter(
                 (u) => u.id !== user.id,
@@ -109,7 +105,55 @@ function handleStartSearch(user, mode) {
     }
 }
 
-// Запускаємо сервер
+function handleTextMessage(sender, content) {
+    const chatId = sender.chatId;
+    if (!chatId || !activeChats[chatId]) return;
+
+    const receiver = activeChats[chatId].find((p) => p.id !== sender.id);
+
+    if (receiver && receiver.readyState === WebSocket.OPEN) {
+        receiver.send(
+            JSON.stringify({
+                type: "text_message",
+                content: content,
+            }),
+        );
+    }
+}
+
+function cleanupChat(chatId) {
+    if (activeChats[chatId]) {
+        activeChats[chatId].forEach((user) => {
+            if (user) user.chatId = null;
+        });
+        delete activeChats[chatId];
+        console.log(`🧹 Чат ${chatId} видалено.`);
+    }
+}
+
+function handleEndChat(user) {
+    const chatId = user.chatId;
+    if (!chatId || !activeChats[chatId]) return;
+
+    const partner = activeChats[chatId].find((p) => p.id !== user.id);
+
+    if (partner && partner.readyState === WebSocket.OPEN) {
+        partner.send(JSON.stringify({ type: "partner_disconnected" }));
+    }
+
+    cleanupChat(chatId);
+}
+
+function handleDisconnection(user) {
+    // 1. Видаляємо з черги очікування
+    Object.keys(waitingUsers).forEach((mode) => {
+        waitingUsers[mode] = waitingUsers[mode].filter((p) => p.id !== user.id);
+    });
+
+    // 2. Завершуємо активний чат, якщо він був
+    handleEndChat(user);
+}
+
 server.listen(port, () => {
     console.log(`✅ Сервер успішно запущено на порті ${port}`);
 });
