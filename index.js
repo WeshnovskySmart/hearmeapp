@@ -39,7 +39,7 @@ wss.on("connection", (ws) => {
     ws.on("message", (message) => {
         try {
             const data = JSON.parse(message);
-            console.log(`[Message] 📥 Отримано від ${ws.id}:`, data);
+            console.log(`[Message] 📥 Отримано від ${ws.id}:`, data.type);
 
             switch (data.type) {
                 case "start_search":
@@ -53,6 +53,10 @@ wss.on("connection", (ws) => {
                     break;
                 case "end_chat":
                     handleEndChat(ws);
+                    break;
+                // **НОВЕ: Обробка WebRTC сигналів**
+                case "webrtc_signal":
+                    handleWebRTCSignal(ws, data.signal);
                     break;
             }
         } catch (error) {
@@ -72,26 +76,20 @@ function handleStartSearch(user, mode) {
         return console.error(`[Error] Невірний режим пошуку: ${mode}`);
     console.log(`[Search] Користувач ${user.id} шукає '${mode}' чат.`);
 
-    // Видаляємо користувача з усіх попередніх черг, щоб уникнути дублікатів
     removeFromWaiting(user);
-
-    // Додаємо користувача у відповідну чергу
     waitingUsers[mode].push(user);
     console.log(
         `[Queue] Користувач ${user.id} доданий у чергу '${mode}'. В черзі зараз: ${waitingUsers[mode].length}`,
     );
 
-    // ПЕРЕВІРКА: Якщо в черзі є двоє або більше людей
     if (waitingUsers[mode].length >= 2) {
         console.log(
             `[Match] В черзі є ${waitingUsers[mode].length} користувачів. Створюємо пару!`,
         );
 
-        // Беремо перших двох з черги
         const user1 = waitingUsers[mode].shift();
         const user2 = waitingUsers[mode].shift();
 
-        // Перевіряємо, чи обидва ще на зв'язку
         if (
             !user1 ||
             user1.readyState !== WebSocket.OPEN ||
@@ -101,7 +99,6 @@ function handleStartSearch(user, mode) {
             console.log(
                 `[Ghost] Один зі співрозмовників від'єднався. Повертаємо живих у чергу.`,
             );
-            // Якщо хтось від'єднався, повертаємо "живого" назад у чергу
             if (user1 && user1.readyState === WebSocket.OPEN)
                 waitingUsers[mode].unshift(user1);
             if (user2 && user2.readyState === WebSocket.OPEN)
@@ -111,21 +108,45 @@ function handleStartSearch(user, mode) {
 
         console.log(`[Match] 🎉 Створено пару: ${user1.id} та ${user2.id}.`);
 
-        // Створюємо для них чат
         const chatId = uuidv4();
         user1.chatId = chatId;
         user2.chatId = chatId;
         activeChats[chatId] = { user1, user2 };
         console.log(`[Chat] Створено чат ${chatId}.`);
 
-        // Повідомляємо обох користувачів
-        const message = JSON.stringify({ type: "partner_found" });
+        // **НОВЕ: Розподіляємо ролі для WebRTC**
+        const message1 = JSON.stringify({
+            type: "partner_found",
+            role: "caller",
+        }); // Той, хто чекав довше - дзвонить
+        const message2 = JSON.stringify({
+            type: "partner_found",
+            role: "callee",
+        }); // Той, хто щойно прийшов - приймає
 
-        console.log(`[Notify] Повідомляємо ${user1.id}...`);
-        user1.send(message);
+        console.log(`[Notify] Повідомляємо ${user1.id} (caller)...`);
+        user1.send(message1);
 
-        console.log(`[Notify] Повідомляємо ${user2.id}...`);
-        user2.send(message);
+        console.log(`[Notify] Повідомляємо ${user2.id} (callee)...`);
+        user2.send(message2);
+    }
+}
+
+// **НОВА ФУНКЦІЯ: Пересилання сигналів**
+function handleWebRTCSignal(sender, signal) {
+    const chatId = sender.chatId;
+    if (!chatId || !activeChats[chatId]) return;
+
+    const chat = activeChats[chatId];
+    const receiver = chat.user1.id === sender.id ? chat.user2 : chat.user1;
+
+    if (receiver && receiver.readyState === WebSocket.OPEN) {
+        receiver.send(
+            JSON.stringify({
+                type: "webrtc_signal",
+                signal: signal,
+            }),
+        );
     }
 }
 
@@ -163,7 +184,6 @@ function handleEndChat(user) {
     if (partner && partner.readyState === WebSocket.OPEN) {
         partner.send(JSON.stringify({ type: "partner_disconnected" }));
     }
-
     cleanupChat(chatId);
 }
 
