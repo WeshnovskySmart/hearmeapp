@@ -253,6 +253,7 @@
             const postChatScreen = document.getElementById('post-chat-screen');
             const backgroundShapes = document.getElementById('background-shapes');
             const modal = document.getElementById('confirmation-modal');
+            const cancelSearchBtn = document.getElementById('cancel-search-btn');
             
             let currentMode = null; 
             let timerInterval = null;
@@ -383,7 +384,11 @@
             document.querySelectorAll('.start-search-btn').forEach(btn => {
                 btn.addEventListener('click', () => startSearch(btn.dataset.mode));
             });
-            document.getElementById('cancel-search-btn').addEventListener('click', () => showScreen(mainScreen));
+            
+            cancelSearchBtn.addEventListener('click', () => {
+                sendMessage({ type: 'cancel_search' });
+                showScreen(mainScreen);
+            });
 
             // Логіка екрану чату
             document.getElementById('end-chat-btn').addEventListener('click', () => {
@@ -392,7 +397,10 @@
 
              // Логіка екрану після чату
             document.getElementById('next-chat-btn').addEventListener('click', () => startSearch(currentMode));
-            document.getElementById('main-menu-btn').addEventListener('click', () => showScreen(mainScreen));
+            document.getElementById('main-menu-btn').addEventListener('click', () => {
+                 messageContainer.innerHTML = ''; // Очищуємо повідомлення
+                 showScreen(mainScreen);
+            });
 
             // Логіка текстового чату
             const messageForm = document.getElementById('message-form');
@@ -486,20 +494,23 @@
                     console.log(`📥 Повідомлення від сервера: ${event.data}`);
                     const message = JSON.parse(event.data);
                     
-                    // Тут будемо обробляти всі команди від сервера
                     switch (message.type) {
                         case 'welcome_message':
-                            showToast(`Сервер: ${message.content}`);
+                            // Можна нічого не показувати, або щось інформативне
                             break;
                         case 'partner_found':
-                            showChatScreen(currentMode);
+                             if (searchScreen.classList.contains('fade-in')) {
+                                showChatScreen(currentMode);
+                            }
                             break;
                         case 'text_message':
                             addMessage(message.content, 'partner');
                             break;
                         case 'partner_disconnected':
                             showToast("Співрозмовник від'єднався", true);
-                            endChat();
+                            if (chatScreen.classList.contains('fade-in')) {
+                                endChat();
+                            }
                             break;
                     }
                 };
@@ -507,7 +518,7 @@
                 socket.onclose = function(event) {
                     console.warn("🔌 З'єднання з сервером закрито.");
                     showToast("З'єднання з сервером втрачено", true);
-                    if (chatScreen.style.animationName === 'fadeIn') {
+                    if (!mainScreen.classList.contains('fade-in')) {
                         showScreen(mainScreen);
                     }
                 };
