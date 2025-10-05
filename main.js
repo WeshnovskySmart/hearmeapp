@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("[Client] 🏁 Скрипт завантажено. Версія 2.1 - Polished Voice UI.");
+    console.log("[Client] 🏁 Скрипт завантажено. Версія 2.2 - Final Polish.");
     const allScreens = document.querySelectorAll('.w-full.max-w-md > div');
     const preloaderScreen = document.getElementById('preloader-screen');
     const onboardingScreen = document.getElementById('onboarding-screen');
@@ -207,6 +207,9 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
             
+            // Індикація власного голосу
+            setupAudioVisualizer(localStream, userAvatar);
+
             peerConnection = new RTCPeerConnection(iceServers);
             
             localStream.getTracks().forEach(track => {
@@ -217,7 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log('[WebRTC] Отримано віддалений аудіопотік!');
                 if (event.streams && event.streams[0]) {
                     remoteAudio.srcObject = event.streams[0];
-                    setupAudioVisualizer(event.streams[0]);
+                    setupAudioVisualizer(event.streams[0], partnerAvatar, true);
                 }
             };
 
@@ -249,10 +252,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    function setupAudioVisualizer(stream) {
-        audioVisualizerCanvas = document.getElementById('audio-visualizer');
-        canvasCtx = audioVisualizerCanvas.getContext('2d');
-        
+    function setupAudioVisualizer(stream, avatarElement, isPartner = false) {
+        if (!isPartner) { // Для візуалізатора-캔버스 використовуємо тільки голос партнера
+            audioVisualizerCanvas = document.getElementById('audio-visualizer');
+            canvasCtx = audioVisualizerCanvas.getContext('2d');
+        }
+
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const source = audioCtx.createMediaStreamSource(stream);
         const analyser = audioCtx.createAnalyser();
@@ -263,32 +268,33 @@ document.addEventListener('DOMContentLoaded', () => {
         const dataArray = new Uint8Array(bufferLength);
 
         function draw() {
-            visualizerAnimation = requestAnimationFrame(draw);
+            requestAnimationFrame(draw);
             analyser.getByteFrequencyData(dataArray);
 
-            canvasCtx.clearRect(0, 0, audioVisualizerCanvas.width, audioVisualizerCanvas.height);
-            
             let sum = 0;
             for (let i = 0; i < bufferLength; i++) {
                 sum += dataArray[i];
             }
             const average = sum / bufferLength;
 
-            partnerAvatar.classList.toggle('speaking', average > 15);
+            avatarElement.classList.toggle('speaking', average > 15);
 
-            const barWidth = (audioVisualizerCanvas.width / bufferLength) * 2.5;
-            let barHeight;
-            let x = 0;
+            if (isPartner) {
+                canvasCtx.clearRect(0, 0, audioVisualizerCanvas.width, audioVisualizerCanvas.height);
+                const barWidth = (audioVisualizerCanvas.width / bufferLength) * 2.5;
+                let barHeight;
+                let x = 0;
 
-            const gradient = canvasCtx.createLinearGradient(0, 0, audioVisualizerCanvas.width, 0);
-            gradient.addColorStop(0, "rgba(239, 68, 68, 0.7)");
-            gradient.addColorStop(1, "rgba(249, 115, 22, 0.7)");
-            canvasCtx.fillStyle = gradient;
+                const gradient = canvasCtx.createLinearGradient(0, 0, audioVisualizerCanvas.width, 0);
+                gradient.addColorStop(0, "rgba(239, 68, 68, 0.7)");
+                gradient.addColorStop(1, "rgba(249, 115, 22, 0.7)");
+                canvasCtx.fillStyle = gradient;
 
-            for(let i = 0; i < bufferLength; i++) {
-                barHeight = dataArray[i] / 2.5;
-                canvasCtx.fillRect(x, (audioVisualizerCanvas.height - barHeight) / 2, barWidth, barHeight);
-                x += barWidth + 1;
+                for(let i = 0; i < bufferLength; i++) {
+                    barHeight = dataArray[i] / 2.5;
+                    canvasCtx.fillRect(x, (audioVisualizerCanvas.height - barHeight) / 2, barWidth, barHeight);
+                    x += barWidth + 1;
+                }
             }
         }
         draw();
@@ -321,6 +327,7 @@ document.addEventListener('DOMContentLoaded', () => {
         remoteAudio.srcObject = null;
         userAvatar.classList.remove('speaking');
         partnerAvatar.classList.remove('speaking');
+        if (canvasCtx) canvasCtx.clearRect(0, 0, audioVisualizerCanvas.width, audioVisualizerCanvas.height);
         console.log('[WebRTC] Голосовий чат завершено та очищено.');
     }
 
