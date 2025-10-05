@@ -48,7 +48,7 @@
 
         /* Анімації пошуку */
         @keyframes radar-sweep { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .radar-scanner::after { content: ''; position: absolute; left: 50%; top: 0; width: 50%; height: 100%; background: linear-gradient(to top, transparent, rgba(239, 68, 68, 0.3)); transform-origin: 0 100%; animation: radar-sweep 2s linear infinite; }
+        .radar-scanner::after { content: ''; position: absolute; left: 50%; top: 0; width: 50%; height: 100%; background: linear-gradient(to top, transparent, var(--gradient-to)); transform-origin: 0 100%; animation: radar-sweep 2s linear infinite; opacity: 0.3; }
         @keyframes typing-dots { 0%, 20% { content: '.'; } 40% { content: '..'; } 60%, 100% { content: '...'; } }
         .typing-animation::after { content: '.'; display: inline-block; animation: typing-dots 1.5s steps(3, end) infinite; }
 
@@ -57,7 +57,7 @@
         .active .accordion-content { max-height: 500px; }
         .active .accordion-icon { transform: rotate(180deg); }
         .chat-message { max-width: 75%; }
-        .speaking { box-shadow: 0 0 15px 2px var(--gradient-to); }
+        .speaking { box-shadow: 0 0 15px 3px var(--gradient-to); }
     </style>
 </head>
 <body class="antialiased h-screen w-screen flex items-center justify-center p-4 relative">
@@ -69,7 +69,7 @@
 
         <!-- Прелоадер -->
         <div id="preloader-screen" class="w-full h-full flex flex-col items-center justify-center">
-            <svg class="w-24 h-24" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+             <svg class="w-24 h-24" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                 <defs><linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:var(--gradient-from)" /><stop offset="100%" style="stop-color:var(--gradient-to)" /></linearGradient></defs>
                 <path fill="url(#logoGradient)" d="M50,0C22.4,0,0,22.4,0,50s22.4,50,50,50c13.2,0,25.2-5.1,34.2-13.4c-1.8-4-3.9-8.4-5.3-12.2c-5.9,3.8-13,6-20.7,6c-18.2,0-33-14.8-33-33s14.8-33,33-33c10.1,0,19.1,4.5,25.2,11.8C70.2,5.2,60.6,0,50,0z M84.2,28.6c-4.7-8.2-13.3-13.8-23.2-15.6c4.6,6.3,7.4,14.1,7.4,22.5c0,18.2-14.8,33-33,33c-3.5,0-6.9-0.6-10.1-1.6c4.1,12,15.6,20.5,29.1,20.5c17.6,0,32-14.4,32-32C86.4,45.8,86,36.9,84.2,28.6z"/>
             </svg>
@@ -84,8 +84,7 @@
             </div>
             <div id="onboarding-steps" class="w-full flex-1 flex items-center justify-center mt-8">
                 <div class="onboarding-step text-center">
-                    <svg class="w-20 h-20 mx-auto text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4
--5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <svg class="w-20 h-20 mx-auto text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     <h3 class="text-2xl font-semibold mt-6">Будьте ввічливими</h3>
                     <p class="text-gray-400 mt-2">Поважайте свого співрозмовника. Образи та токсична поведінка тут неприйнятні.</p>
                 </div>
@@ -148,11 +147,12 @@
         <!-- Екран пошуку -->
         <div id="search-screen" class="hidden w-full h-full flex flex-col p-4">
             <div class="flex-grow flex flex-col items-center justify-center">
-                <div id="voice-search-animation" class="hidden w-64 h-64 rounded-full border-2 border-orange-500/30 relative flex items-center justify-center">
-                    <div class="w-full h-full rounded-full border-2 border-orange-500/40 scale-75 absolute"></div>
-                    <div class="w-full h-full rounded-full border-2 border-orange-500/50 scale-50 absolute"></div>
-                    <div class="radar-scanner w-full h-full rounded-full"></div>
-                    <svg class="w-16 h-16 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path></svg>
+                <div id="voice-search-animation" class="hidden w-64 h-64 relative flex items-center justify-center">
+                    <div class="w-full h-full rounded-full border-2 border-[var(--gradient-to)] opacity-30"></div>
+                    <div class="w-2/3 h-2/3 rounded-full border-2 border-[var(--gradient-to)] opacity-40 absolute"></div>
+                    <div class="w-1/3 h-1/3 rounded-full border-2 border-[var(--gradient-to)] opacity-50 absolute"></div>
+                    <div class="radar-scanner w-full h-full rounded-full absolute"></div>
+                    <svg class="w-16 h-16 text-[var(--gradient-to)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path></svg>
                 </div>
                 <div id="text-search-animation" class="hidden w-64 h-64 flex items-center justify-center">
                      <svg class="w-24 h-24 text-orange-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
@@ -172,22 +172,23 @@
             </div>
             
             <!-- Інтерфейс голосового чату -->
-            <div id="voice-chat-interface" class="hidden flex-1 flex-col items-center justify-center p-4">
+            <div id="voice-chat-interface" class="hidden flex-1 flex-col items-center justify-between p-4">
                 <div class="flex items-center justify-around w-full">
                      <div id="user-avatar" class="flex flex-col items-center space-y-3">
-                         <div class="w-24 h-24 rounded-full bg-gray-700 flex items-center justify-center border-2 border-transparent transition-all duration-200">
-                             <svg class="w-12 h-12 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
+                         <div class="w-28 h-28 rounded-full bg-gray-700/50 flex items-center justify-center border-2 border-transparent transition-all duration-200">
+                             <svg class="w-16 h-16 text-gray-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
                          </div>
                          <span class="font-semibold">Ви</span>
                      </div>
                      <div id="partner-avatar" class="flex flex-col items-center space-y-3">
-                         <div class="w-24 h-24 rounded-full bg-gray-700 flex items-center justify-center border-2 border-transparent transition-all duration-200">
-                             <svg class="w-12 h-12 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
+                         <div class="w-28 h-28 rounded-full bg-gray-700/50 flex items-center justify-center border-2 border-transparent transition-all duration-200">
+                              <svg class="w-16 h-16 text-gray-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
                          </div>
                          <span class="font-semibold">Співрозмовник</span>
                      </div>
                 </div>
-                 <button id="mic-toggle-btn" class="mt-12 p-4 bg-gray-700 rounded-full hover:bg-gray-600 transition-colors">
+                <canvas id="audio-visualizer" class="w-full h-24"></canvas>
+                 <button id="mic-toggle-btn" class="p-5 bg-gray-700 rounded-full hover:bg-gray-600 transition-colors">
                     <svg id="mic-icon" class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path></svg>
                 </button>
             </div>
@@ -240,13 +241,11 @@
     <audio id="connect-sound" src="data:audio/wav;base64,UklGRlIAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhZAAAAAAPAAAADwAAABoAAAAlAAAAKgAAAC8AAAAyAAAANwAAADsAAAA/AAAAPwAAAD4AAAA9AAAANwAAADAAAAAqAAAAJQAAAB4AAAAbAAAAFQAAABMAAAAPAAAADQAAAAoAAAAHAAAAAwAAAAEAAAAAAAAA/////wAAAP8AAAD/AAAAAgAAAAcAAAAMAAAADwAAABMAAAAWAAAAHAAAACEAAAApAAAALgAAADIAAAA2AAAAPAAAAD8AAAA/AAAAPgAAADsAAAA3AAAAMgAAACsAAAAkAAAAHAAAABgAAAATAAAADAAAAAgAAAAEAAAAAQAAAAAAAAAA/////wAAAP8AAAD/AAAAAQAAAAYAAAALAAAADgAAABIAAAAVAAAAHAAAASEAAAAoAAAALQAAADEAAAA1AAAAOwAAAD4AAAA+AAAAPAAAADgAAADAAAAArAAAAJQAAAB0AAAAYAAAAEgAAAAwAAAAHAAAAAwAAAAEAAAAAAAAAAP////8AAAD/AAAA/wAAAAEAAAAFAAAACgAAAAsAAAANAAAADQAAAA0AAAAMAAAACwAAAAkAAAAHAAAABgAAAAUAAAAEAAAAAwAAAAIAAAABAAAAAAAAAAD/////AAAA/wAAAP8AAAD/AAAA/wAAAP8AAAD/AAAAAAABAAMABQAHAAsADAAOAA8AEQATABUAFwAZABsAHQAeACAAIgAkACYAKQAqACwALgAwADEAMwA1ADYAOAA6ADwAPgBAAEEAQwBFAEcASQBLAE0ATwBRAFMAVQBXAFkAWwBdAF8AYQBjAGUAZwBpAGsAbQBuAHA"></audio>
     <audio id="disconnect-sound" src="data:audio/wav;base64,UklGRjwAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhGAAAAAAA/wAAAAEAAAACAAAAAwAAAAQAAAAFAAAABgAAAAcAAAAHAAAABgAAAAUAAAAEAAAAAwAAAAIAAAABAAAAAAAAAAD/AAAA"></audio>
     
-    <!-- **НОВЕ: Аудіо елемент для голосу співрозмовника** -->
     <audio id="remote-audio" autoplay></audio>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            console.log("[Client] 🏁 Скрипт завантажено. Версія з WebRTC.");
-            // ... (весь попередній код до DOMContentLoaded залишається таким самим) ...
+            console.log("[Client] 🏁 Скрипт завантажено. Версія 2.1 - Polished Voice UI.");
             const allScreens = document.querySelectorAll('.w-full.max-w-md > div');
             const preloaderScreen = document.getElementById('preloader-screen');
             const onboardingScreen = document.getElementById('onboarding-screen');
@@ -416,7 +415,7 @@
             function endChat() {
                 playSound(disconnectSound);
                 stopTimer();
-                closeVoiceChat(); // **НОВЕ: Закриваємо WebRTC з'єднання**
+                closeVoiceChat();
                 sendMessage({ type: 'end_chat' });
                 showScreen(postChatScreen);
             }
@@ -438,10 +437,12 @@
             // =================================================================
             let peerConnection;
             let localStream;
+            let audioVisualizerCanvas, canvasCtx, visualizerAnimation;
             const remoteAudio = document.getElementById('remote-audio');
             const micBtn = document.getElementById('mic-toggle-btn');
             const micIcon = document.getElementById('mic-icon');
             const userAvatar = document.getElementById('user-avatar').querySelector('div');
+            const partnerAvatar = document.getElementById('partner-avatar').querySelector('div');
 
             const iceServers = {
                 iceServers: [ { urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }]
@@ -451,8 +452,7 @@
                 console.log(`[WebRTC] Починаємо голосовий чат у ролі: ${role}`);
                 try {
                     localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    userAvatar.classList.add('speaking'); // Показуємо, що мікрофон активний
-
+                    
                     peerConnection = new RTCPeerConnection(iceServers);
                     
                     localStream.getTracks().forEach(track => {
@@ -463,12 +463,12 @@
                         console.log('[WebRTC] Отримано віддалений аудіопотік!');
                         if (event.streams && event.streams[0]) {
                             remoteAudio.srcObject = event.streams[0];
+                            setupAudioVisualizer(event.streams[0]);
                         }
                     };
 
                     peerConnection.onicecandidate = (event) => {
                         if (event.candidate) {
-                            console.log('[WebRTC] Новий ICE кандидат, відправляємо...');
                             sendMessage({ type: 'webrtc_signal', signal: { candidate: event.candidate } });
                         }
                     };
@@ -476,12 +476,11 @@
                     if (role === 'caller') {
                         const offer = await peerConnection.createOffer();
                         await peerConnection.setLocalDescription(offer);
-                        console.log('[WebRTC] Створено Offer, відправляємо...');
                         sendMessage({ type: 'webrtc_signal', signal: { sdp: peerConnection.localDescription } });
                     }
 
                 } catch (error) {
-                    console.error("[WebRTC] Помилка доступу до мікрофона або створення з'єднання:", error);
+                    console.error("[WebRTC] Помилка доступу до мікрофона:", error);
                     showToast("Не вдалося отримати доступ до мікрофона", true);
                     endChat();
                 }
@@ -492,48 +491,91 @@
                     const audioTrack = localStream.getAudioTracks()[0];
                     if (audioTrack.enabled) {
                         audioTrack.enabled = false;
-                        micIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 14.24a4.488 4.488 0 00-1.803-3.5M2.5 9.035A11.082 11.082 0 0113.5 2.5v2.882m-3.5 0V11m-3.5 0a3.5 3.5 0 117 0V5.118" />`;
-                        userAvatar.classList.remove('speaking');
+                        micIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L6.343 5.343m11.314 0L6.343 16.657" />`;
                     } else {
                         audioTrack.enabled = true;
                         micIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />`;
-                        userAvatar.classList.add('speaking');
                     }
                 }
             });
+
+            function setupAudioVisualizer(stream) {
+                audioVisualizerCanvas = document.getElementById('audio-visualizer');
+                canvasCtx = audioVisualizerCanvas.getContext('2d');
+                
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const source = audioCtx.createMediaStreamSource(stream);
+                const analyser = audioCtx.createAnalyser();
+                analyser.fftSize = 256;
+                source.connect(analyser);
+
+                const bufferLength = analyser.frequencyBinCount;
+                const dataArray = new Uint8Array(bufferLength);
+
+                function draw() {
+                    visualizerAnimation = requestAnimationFrame(draw);
+                    analyser.getByteFrequencyData(dataArray);
+
+                    canvasCtx.clearRect(0, 0, audioVisualizerCanvas.width, audioVisualizerCanvas.height);
+                    
+                    let sum = 0;
+                    for (let i = 0; i < bufferLength; i++) {
+                        sum += dataArray[i];
+                    }
+                    const average = sum / bufferLength;
+
+                    partnerAvatar.classList.toggle('speaking', average > 20);
+
+                    const barWidth = (audioVisualizerCanvas.width / bufferLength) * 2.5;
+                    let barHeight;
+                    let x = 0;
+
+                    const gradient = canvasCtx.createLinearGradient(0, 0, audioVisualizerCanvas.width, 0);
+                    gradient.addColorStop(0, "rgba(239, 68, 68, 0.7)");
+                    gradient.addColorStop(1, "rgba(249, 115, 22, 0.7)");
+                    canvasCtx.fillStyle = gradient;
+
+                    for(let i = 0; i < bufferLength; i++) {
+                        barHeight = dataArray[i] / 2;
+                        canvasCtx.fillRect(x, audioVisualizerCanvas.height - barHeight, barWidth, barHeight);
+                        x += barWidth + 1;
+                    }
+                }
+                draw();
+            }
 
             async function handleRtcSignal(signal) {
                 if (signal.sdp) {
                     await peerConnection.setRemoteDescription(new RTCSessionDescription(signal.sdp));
                     if (signal.sdp.type === 'offer') {
-                        console.log('[WebRTC] Отримано Offer, створюємо Answer...');
                         const answer = await peerConnection.createAnswer();
                         await peerConnection.setLocalDescription(answer);
                         sendMessage({ type: 'webrtc_signal', signal: { sdp: peerConnection.localDescription } });
                     }
                 } else if (signal.candidate) {
-                    console.log('[WebRTC] Отримано ICE кандидат, додаємо...');
                     await peerConnection.addIceCandidate(new RTCIceCandidate(signal.candidate));
                 }
             }
 
             function closeVoiceChat() {
+                cancelAnimationFrame(visualizerAnimation);
                 if (localStream) {
                     localStream.getTracks().forEach(track => track.stop());
                     localStream = null;
-                    userAvatar.classList.remove('speaking');
                 }
                 if (peerConnection) {
                     peerConnection.close();
                     peerConnection = null;
                 }
                 remoteAudio.srcObject = null;
+                userAvatar.classList.remove('speaking');
+                partnerAvatar.classList.remove('speaking');
                 console.log('[WebRTC] Голосовий чат завершено та очищено.');
             }
 
             // =================================================================
             // WebSocket ЛОГІКА
-            // =================================================================
+            // =================================="WebSocket"
             let socket = null;
             const SERVER_URL = "wss://hearmeapp.onrender.com";
 
@@ -550,15 +592,11 @@
                 socket.onmessage = function(event) {
                     try {
                         const message = JSON.parse(event.data);
-                        console.log(`[Client] ⚙️ ОБРОБКА ПОВІДОМЛЕННЯ:`, message);
+                        // console.log(`[Client] ⚙️ ОБРОБКА ПОВІДОМЛЕННЯ:`, message);
 
                         switch (message.type) {
                             case 'partner_found':
-                                console.log(`[Client] 📢 ОТРИМАНО КОМАНДУ partner_found! Роль: ${message.role}`);
-                                if (searchScreen.classList.contains('hidden')) {
-                                    console.warn(`[Client] ⚠️ Отримано partner_found, але екран пошуку не активний!`);
-                                    return;
-                                }
+                                if (searchScreen.classList.contains('hidden')) { return; }
                                 showChatScreen(currentMode);
                                 if (currentMode === 'voice') {
                                     startVoiceChat(message.role);
