@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>HearMe</title>
+    <!-- Підключення Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Підключення шрифту Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #111827;
+            color: #f9fafb;
+            overflow: hidden; 
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --gradient-from: #ef4444;
+            --gradient-to: #f97316;
+            --glow-color: rgba(239, 68, 68, 0.5);
+        }
+
+        .text-gradient { background-image: linear-gradient(to right, var(--gradient-from), var(--gradient-to)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .bg-gradient-animated { background: linear-gradient(90deg, var(--gradient-from), var(--gradient-to), var(--gradient-from)); background-size: 200% 100%; animation: gradient-flow 5s ease infinite; }
+        @keyframes gradient-flow { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+        @keyframes fadeOut { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.98); } }
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        .fade-out { animation: fadeOut 0.4s ease-in forwards; }
+        
+        #background-shapes { transition: transform 0.5s ease-out; }
+        #background-shapes div { position: absolute; border-radius: 50%; background: linear-gradient(to right,
+            rgba(239, 68, 68, 0.1), 
+            rgba(249, 115, 22, 0.1)
+        ); transition: transform 10s linear; }
+        
+        .glassmorphism { background: rgba(31, 41, 55, 0.6); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+
+        .btn-primary:hover { box-shadow: 0 0 25px var(--glow-color); }
+        .btn-primary:active { transform: scale(0.97); }
+
+        .ripple { position: absolute; border-radius: 50%; background: rgba(255, 255, 255, 0.3); transform: scale(0); animation: ripple-effect 0.6s linear; }
+        @keyframes ripple-effect { to { transform: scale(4); opacity: 0; } }
+
+        /* Анімації пошуку */
+        @keyframes radar-sweep { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .radar-scanner::after { content: ''; position: absolute; left: 50%; top: 0; width: 50%; height: 100%; background: linear-gradient(to top, transparent, rgba(239, 68, 68, 0.3)); transform-origin: 0 100%; animation: radar-sweep 2s linear infinite; }
+        @keyframes typing-dots { 0%, 20% { content: '.'; } 40% { content: '..'; } 60%, 100% { content: '...'; } }
+        .typing-animation::after { content: '.'; display: inline-block; animation: typing-dots 1.5s steps(3, end) infinite; }
+
+        /* Інші стилі */
+        .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-in-out; }
+        .active .accordion-content { max-height: 500px; }
+        .active .accordion-icon { transform: rotate(180deg); }
+        .chat-message { max-width: 75%; }
+        .speaking { box-shadow: 0 0 15px 2px var(--gradient-to); }
+    </style>
+</head>
+<body class="antialiased h-screen w-screen flex items-center justify-center p-4 relative">
+    <!-- Анімований фон -->
+    <div id="background-shapes" class="absolute inset-0 z-0 overflow-hidden"></div>
+
+    <!-- Контейнер екранів -->
+    <div class="w-full max-w-md h-full max-h-[800px] z-10">
+
+        <!-- Прелоадер -->
+        <div id="preloader-screen" class="w-full h-full flex flex-col items-center justify-center fade-in">
+            <svg class="w-24 h-24" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <defs><linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:var(--gradient-from)" /><stop offset="100%" style="stop-color:var(--gradient-to)" /></linearGradient></defs>
+                <path fill="url(#logoGradient)" d="M50,0C22.4,0,0,22.4,0,50s22.4,50,50,50c13.2,0,25.2-5.1,34.2-13.4c-1.8-4-3.9-8.4-5.3-12.2c-5.9,3.8-13,6-20.7,6c-18.2,0-33-14.8-33-33s14.8-33,33-33c10.1,0,19.1,4.5,25.2,11.8C70.2,5.2,60.6,0,50,0z M84.2,28.6c-4.7-8.2-13.3-13.8-23.2-15.6c4.6,6.3,7.4,14.1,7.4,22.5c0,18.2-14.8,33-33,33c-3.5,0-6.9-0.6-10.1-1.6c4.1,12,15.6,20.5,29.1,20.5c17.6,0,32-14.4,32-32C86.4,45.8,86,36.9,84.2,28.6z"/>
+            </svg>
+            <h1 class="text-4xl font-extrabold text-gradient mt-4">HearMe</h1>
+        </div>
+
+        <!-- Онбординг (при першому запуску) -->
+        <div id="onboarding-screen" class="hidden w-full h-full flex-col items-center justify-center p-4">
+            <div class="w-full text-center">
+                <h2 class="text-3xl font-bold text-gray-100">Ласкаво просимо в HearMe!</h2>
+                <p class="text-gray-400 mt-2">Кілька простих правил для комфортного спілкування.</p>
+            </div>
+            <div id="onboarding-steps" class="w-full flex-1 flex items-center justify-center mt-8">
+                <div class="onboarding-step text-center fade-in">
+                    <svg class="w-20 h-20 mx-auto text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <h3 class="text-2xl font-semibold mt-6">Будьте ввічливими</h3>
+                    <p class="text-gray-400 mt-2">Поважайте свого співрозмовника. Образи та токсична поведінка тут неприйнятні.</p>
+                </div>
+                <div class="onboarding-step hidden text-center">
+                    <svg class="w-20 h-20 mx-auto text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    <h3 class="text-2xl font-semibold mt-6">Без заборонених тем</h3>
+                    <p class="text-gray-400 mt-2">Політика, релігія та інші теми, що розпалюють ворожнечу, заборонені.</p>
+                </div>
+                <div class="onboarding-step hidden text-center">
+                    <svg class="w-20 h-20 mx-auto text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    <h3 class="text-2xl font-semibold mt-6">Насолоджуйтесь!</h3>
+                    <p class="text-gray-400 mt-2">Головна мета — знайти цікавих людей та отримати позитивні емоції.</p>
+                </div>
+            </div>
+            <div class="w-full mt-8">
+                 <button id="next-onboarding-step" class="w-full text-lg font-bold py-4 bg-gradient-animated text-white rounded-2xl transition-transform duration-200 btn-primary relative overflow-hidden">Далі</button>
+            </div>
+        </div>
+
+        <!-- Головний екран -->
+        <div id="main-screen" class="hidden w-full h-full flex-col p-4">
+            <div class="text-center pt-8">
+                <h1 class="text-4xl font-extrabold text-gradient">HearMe</h1>
+                <p class="text-gray-400 mt-2 px-4">Знайди свого співрозмовника у світі, що завжди слухає. Два кліки до нової розмови.</p>
+            </div>
+            <div class="flex-1 flex flex-col items-center justify-center space-y-6">
+                <button data-mode="voice" class="start-search-btn w-full max-w-xs text-lg font-bold py-6 bg-gradient-animated text-white rounded-2xl transition-transform duration-200 btn-primary relative overflow-hidden flex items-center justify-center space-x-3">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path></svg>
+                    <span>Голосове спілкування</span>
+                </button>
+                <button data-mode="text" class="start-search-btn w-full max-w-xs text-lg font-bold py-6 bg-gray-700 hover:bg-gray-600 text-white rounded-2xl transition-transform duration-200 active:scale-95 relative overflow-hidden flex items-center justify-center space-x-3">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                    <span>Текстовий чат</span>
+                </button>
+            </div>
+            <div class="pb-4 space-y-2">
+                <div class="accordion-item glassmorphism rounded-xl px-4 py-3">
+                    <div class="accordion-header flex justify-between items-center cursor-pointer">
+                        <h3 class="font-semibold">Правила спільноти</h3>
+                        <svg class="accordion-icon w-6 h-6 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                    <div class="accordion-content pt-2 text-gray-400 text-sm">
+                        <p>1. Поважайте інших. Будь-які образи, приниження або погрози заборонені.</p>
+                        <p>2. Жодної дискримінації за будь-якою ознакою.</p>
+                        <p>3. Заборонено розповсюдження незаконного або шокуючого контенту.</p>
+                    </div>
+                </div>
+                 <div class="accordion-item glassmorphism rounded-xl px-4 py-3">
+                    <div class="accordion-header flex justify-between items-center cursor-pointer">
+                        <h3 class="font-semibold">Про додаток</h3>
+                        <svg class="accordion-icon w-6 h-6 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </div>
+                    <div class="accordion-content pt-2 text-gray-400 text-sm">
+                        <p>HearMe - це анонімний чат для пошуку нових знайомств та цікавих розмов. Ми не зберігаємо історію ваших повідомлень.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Екран пошуку -->
+        <div id="search-screen" class="hidden w-full h-full flex-col items-center justify-center p-4">
+            <div id="voice-search-animation" class="hidden w-64 h-64 rounded-full border-2 border-orange-500/30 relative flex items-center justify-center">
+                <div class="w-full h-full rounded-full border-2 border-orange-500/40 scale-75 absolute"></div>
+                <div class="w-full h-full rounded-full border-2 border-orange-500/50 scale-50 absolute"></div>
+                <div class="radar-scanner w-full h-full rounded-full"></div>
+                <svg class="w-16 h-16 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path></svg>
+            </div>
+            <div id="text-search-animation" class="hidden w-64 h-64 flex items-center justify-center">
+                 <svg class="w-24 h-24 text-orange-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+            </div>
+            <h2 class="text-2xl font-semibold mt-8">Пошук співрозмовника<span class="typing-animation"></span></h2>
+            <button id="cancel-search-btn" class="mt-12 text-lg font-semibold py-3 px-8 bg-gray-700 hover:bg-gray-600 text-white rounded-2xl transition-transform duration-200 active:scale-95 relative overflow-hidden">Скасувати</button>
+        </div>
+
+        <!-- Екран чату -->
+        <div id="chat-screen" class="hidden w-full h-full flex flex-col p-2 glassmorphism rounded-3xl">
+            <div class="flex-shrink-0 flex items-center justify-between p-3 border-b border-white/10">
+                <div class="font-semibold">
+                    Розмова <span id="chat-timer" class="ml-2">00:00</span>
+                </div>
+                <button id="end-chat-btn" class="text-lg font-semibold py-2 px-4 bg-red-600 hover:bg-red-500 text-white rounded-xl transition-transform duration-200 active:scale-95 relative overflow-hidden">Завершити</button>
+            </div>
+            
+            <!-- Інтерфейс голосового чату -->
+            <div id="voice-chat-interface" class="hidden flex-1 flex-col items-center justify-center p-4">
+                <div class="flex items-center justify-around w-full">
+                     <div class="flex flex-col items-center space-y-3">
+                         <div class="w-24 h-24 rounded-full bg-gray-700 flex items-center justify-center border-2 border-transparent transition-all duration-200 speaking">
+                             <svg class="w-12 h-12 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
+                         </div>
+                         <span class="font-semibold">Ви</span>
+                     </div>
+                     <div class="flex flex-col items-center space-y-3">
+                         <div class="w-24 h-24 rounded-full bg-gray-700 flex items-center justify-center border-2 border-transparent transition-all duration-200">
+                             <svg class="w-12 h-12 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
+                         </div>
+                         <span class="font-semibold">Співрозмовник</span>
+                     </div>
+                </div>
+                 <button id="mic-toggle-btn" class="mt-12 p-4 bg-gray-700 rounded-full hover:bg-gray-600 transition-colors">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path></svg>
+                </button>
+            </div>
+
+            <!-- Інтерфейс текстового чату -->
+            <div id="text-chat-interface" class="hidden flex-1 flex flex-col">
+                <div id="message-container" class="flex-1 p-4 space-y-4 overflow-y-auto">
+                    <!-- Сюди будуть додаватись повідомлення -->
+                </div>
+                <div class="flex-shrink-0 p-3 border-t border-white/10">
+                    <form id="message-form" class="flex items-center space-x-2">
+                        <input id="message-input" type="text" placeholder="Напишіть повідомлення..." class="flex-1 w-full bg-gray-800 border border-gray-700 rounded-xl px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-orange-500">
+                        <button type="submit" class="p-3 bg-gradient-animated text-white rounded-full transition-transform active:scale-90">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path></svg>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Екран після чату -->
+        <div id="post-chat-screen" class="hidden w-full h-full flex-col items-center justify-center p-4">
+             <svg class="w-20 h-20 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+            <h2 class="text-3xl font-bold mt-6">Діалог завершено</h2>
+            <p class="text-gray-400 mt-2">Бажаєте знайти нового співрозмовника?</p>
+            <div class="mt-12 flex flex-col space-y-4 w-full max-w-xs">
+                <button id="next-chat-btn" class="w-full text-lg font-bold py-4 bg-gradient-animated text-white rounded-2xl transition-transform duration-200 btn-primary relative overflow-hidden">Наступний співрозмовник</button>
+                <button id="main-menu-btn" class="w-full text-lg font-semibold py-4 bg-gray-700 hover:bg-gray-600 text-white rounded-2xl transition-transform duration-200 active:scale-95 relative overflow-hidden">Головне меню</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальне вікно підтвердження -->
+    <div id="confirmation-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center p-4">
+        <div class="glassmorphism rounded-2xl p-6 w-full max-w-sm text-center fade-in">
+            <h3 id="modal-title" class="text-xl font-bold">Підтвердження</h3>
+            <p id="modal-text" class="text-gray-300 mt-2">Ви впевнені, що хочете завершити діалог?</p>
+            <div class="mt-6 flex justify-center space-x-4">
+                <button id="modal-cancel-btn" class="font-semibold py-2 px-6 bg-gray-600 hover:bg-gray-500 rounded-lg transition-colors">Ні</button>
+                <button id="modal-confirm-btn" class="font-bold py-2 px-6 bg-red-600 hover:bg-red-500 rounded-lg transition-colors">Так</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Спливаючі повідомлення (тости) -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col items-end space-y-2"></div>
+
+    <!-- Аудіо для ефектів -->
+    <audio id="click-sound" src="data:audio/mpeg;base64,SUQzBAAAAAABEVRYWFgAAAAtAAADY29tbWVudABCaWdTb3VuZEJhbmsuY29tIC8gUmVjb3JkZWQgQnkgVmlublovAAAAU1D/0r/4//5A4/9/4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//5A4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//5A4gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB//5A4wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB//5A44AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//5A5AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//5A5QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//5A5gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"></audio>
+    <audio id="connect-sound" src="data:audio/mpeg;base64,SUQzBAAAAAABEVRYWFgAAAAtAAADY29tbWVudABCaWdTb3VuZEJhbmsuY29tIC8gUmVjb3JkZWQgQnkgVmlublovAAAAU1D/0r/4//5A4/9/4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//5A4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//5A4gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB//5A4wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB//5A44AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//5A5AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//5A5QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//5A5gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"></audio>
+    <audio id="disconnect-sound" src="data:audio/mpeg;base64,SUQzBAAAAAABEVRYWFgAAAAtAAADY29tbWVudABCaWdTb3VuZEJhbmsuY29tIC8gUmVjb3JkZWQgQnkgVmlublovAAAAU1D/0r/4//5A4/9/4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//5A4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//5A4gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB//5A4wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB//5A44AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//5A5AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//5A5QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//5A5gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"></audio>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Отримуємо всі елементи
+            const allScreens = document.querySelectorAll('.w-full.max-w-md > div');
+            const preloaderScreen = document.getElementById('preloader-screen');
+            const onboardingScreen = document.getElementById('onboarding-screen');
+            const mainScreen = document.getElementById('main-screen');
+            const searchScreen = document.getElementById('search-screen');
+            const chatScreen = document.getElementById('chat-screen');
+            const postChatScreen = document.getElementById('post-chat-screen');
+            const backgroundShapes = document.getElementById('background-shapes');
+            const modal = document.getElementById('confirmation-modal');
+            
+            let currentMode = null; 
+            let timerInterval = null;
+
+            // Функція для перемикання екранів
+            function showScreen(screenToShow) {
+                allScreens.forEach(screen => {
+                    if (screen.id === screenToShow.id) {
+                        screen.classList.remove('hidden', 'fade-out');
+                        screen.classList.add('fade-in');
+                    } else {
+                        screen.classList.add('fade-out');
+                        setTimeout(() => screen.classList.add('hidden'), 400);
+                    }
+                });
+            }
+
+            // Логіка звукових ефектів
+            const clickSound = document.getElementById('click-sound');
+            const connectSound = document.getElementById('connect-sound');
+            const disconnectSound = document.getElementById('disconnect-sound');
+            function playSound(sound) {
+                sound.currentTime = 0;
+                sound.play().catch(e => console.log("Не вдалося відтворити звук:", e));
+            }
+            document.querySelectorAll('button, .accordion-header').forEach(el => {
+                el.addEventListener('click', () => playSound(clickSound));
+            });
+
+            // Логіка анімованого фону
+            const shapeCount = 15;
+            for (let i = 0; i < shapeCount; i++) {
+                const shape = document.createElement('div');
+                const size = Math.random() * 80 + 20;
+                shape.style.width = `${size}px`;
+                shape.style.height = `${size}px`;
+                shape.style.top = `${Math.random() * 100}%`;
+                shape.style.left = `${Math.random() * 100}%`;
+                shape.style.opacity = Math.random() * 0.5 + 0.1;
+                backgroundShapes.appendChild(shape);
+            }
+            document.body.addEventListener('mousemove', (e) => {
+                const { clientX, clientY } = e;
+                const { innerWidth, innerHeight } = window;
+                const moveX = (clientX / innerWidth - 0.5) * -40;
+                const moveY = (clientY / innerHeight - 0.5) * -40;
+                backgroundShapes.style.transform = `translate(${moveX}px, ${moveY}px)`;
+            });
+
+            // Логіка Ripple ефекту
+            document.body.addEventListener('click', (e) => {
+                const target = e.target.closest('.relative.overflow-hidden');
+                if (target) {
+                    const rect = target.getBoundingClientRect();
+                    const ripple = document.createElement('span');
+                    ripple.className = 'ripple';
+                    ripple.style.left = `${e.clientX - rect.left}px`;
+                    ripple.style.top = `${e.clientY - rect.top}px`;
+                    target.appendChild(ripple);
+                    setTimeout(() => ripple.remove(), 600);
+                }
+            });
+            
+            // Логіка спливаючих повідомлень (тостів)
+            function showToast(message, isError = false) {
+                const toastContainer = document.getElementById('toast-container');
+                const toast = document.createElement('div');
+                toast.className = `px-4 py-2 rounded-lg shadow-lg text-white text-sm fade-in ${isError ? 'bg-red-600' : 'glassmorphism'}`;
+                toast.textContent = message;
+                toastContainer.appendChild(toast);
+                setTimeout(() => {
+                    toast.classList.remove('fade-in');
+                    toast.classList.add('fade-out');
+                    setTimeout(() => toast.remove(), 400);
+                }, 3000);
+            }
+
+            // Логіка модального вікна
+            let confirmCallback = null;
+            function showModal(title, text, onConfirm) {
+                document.getElementById('modal-title').textContent = title;
+                document.getElementById('modal-text').textContent = text;
+                confirmCallback = onConfirm;
+                modal.classList.remove('hidden');
+            }
+            document.getElementById('modal-cancel-btn').addEventListener('click', () => modal.classList.add('hidden'));
+            document.getElementById('modal-confirm-btn').addEventListener('click', () => {
+                modal.classList.add('hidden');
+                if (confirmCallback) confirmCallback();
+            });
+
+            // Логіка акордеону
+            document.querySelectorAll('.accordion-header').forEach(header => {
+                header.addEventListener('click', () => {
+                    header.parentElement.classList.toggle('active');
+                });
+            });
+
+            // Логіка онбордингу
+            const onboardingSteps = document.querySelectorAll('.onboarding-step');
+            const nextOnboardingBtn = document.getElementById('next-onboarding-step');
+            let currentStep = 0;
+            nextOnboardingBtn.addEventListener('click', () => {
+                onboardingSteps[currentStep].classList.add('hidden');
+                currentStep++;
+                if (currentStep < onboardingSteps.length) {
+                    onboardingSteps[currentStep].classList.remove('hidden');
+                    if (currentStep === onboardingSteps.length - 1) {
+                        nextOnboardingBtn.textContent = 'Розпочати!';
+                    }
+                } else {
+                    localStorage.setItem('onboardingCompleted', 'true');
+                    showScreen(mainScreen);
+                }
+            });
+
+            // Перехід з прелоадера
+            setTimeout(() => {
+                const onboardingCompleted = localStorage.getItem('onboardingCompleted');
+                if (onboardingCompleted) {
+                    showScreen(mainScreen);
+                } else {
+                    showScreen(onboardingScreen);
+                }
+            }, 2000);
+
+            // Логіка кнопок пошуку та скасування
+            document.querySelectorAll('.start-search-btn').forEach(btn => {
+                btn.addEventListener('click', () => startSearch(btn.dataset.mode));
+            });
+            document.getElementById('cancel-search-btn').addEventListener('click', () => showScreen(mainScreen));
+
+            // Логіка екрану чату
+            document.getElementById('end-chat-btn').addEventListener('click', () => {
+                showModal('Завершення діалогу', 'Ви впевнені, що хочете завершити розмову?', endChat);
+            });
+
+             // Логіка екрану після чату
+            document.getElementById('next-chat-btn').addEventListener('click', () => startSearch(currentMode));
+            document.getElementById('main-menu-btn').addEventListener('click', () => showScreen(mainScreen));
+
+            // Логіка текстового чату
+            const messageForm = document.getElementById('message-form');
+            const messageInput = document.getElementById('message-input');
+            const messageContainer = document.getElementById('message-container');
+
+            messageForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const messageText = messageInput.value.trim();
+                if (messageText) {
+                    addMessage(messageText, 'my');
+                    // sendMessage({ type: 'text_message', content: messageText }); // TODO: Розкоментувати
+                    messageInput.value = '';
+                }
+            });
+
+            function addMessage(text, type) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `flex ${type === 'my' ? 'justify-end' : 'justify-start'}`;
+                const bubble = document.createElement('div');
+                bubble.className = `chat-message p-3 rounded-2xl ${type === 'my' ? 'bg-gradient-animated text-white' : 'bg-gray-700'}`;
+                bubble.textContent = text;
+                messageDiv.appendChild(bubble);
+                messageContainer.appendChild(messageDiv);
+                messageContainer.scrollTop = messageContainer.scrollHeight;
+            }
+
+            // Основні функції управління станом
+            function startSearch(mode) {
+                currentMode = mode;
+                document.getElementById('voice-search-animation').classList.toggle('hidden', mode !== 'voice');
+                document.getElementById('text-search-animation').classList.toggle('hidden', mode !== 'text');
+                showScreen(searchScreen);
+                
+                if (!socket || socket.readyState === WebSocket.CLOSED) {
+                    connectToServer();
+                } else {
+                    sendMessage({ type: 'start_search', mode: currentMode });
+                }
+
+                // Симуляція для тестування інтерфейсу
+                setTimeout(() => {
+                    if(searchScreen.style.animationName === 'fadeIn') showChatScreen(currentMode);
+                }, 4000);
+            }
+
+            function showChatScreen(mode) {
+                playSound(connectSound);
+                document.getElementById('voice-chat-interface').classList.toggle('hidden', mode !== 'voice');
+                document.getElementById('text-chat-interface').classList.toggle('hidden', mode !== 'text');
+                showScreen(chatScreen);
+                startTimer();
+            }
+
+            function endChat() {
+                playSound(disconnectSound);
+                stopTimer();
+                // sendMessage({ type: 'end_chat' }); // TODO: Розкоментувати
+                showScreen(postChatScreen);
+            }
+
+            function startTimer() {
+                stopTimer();
+                let seconds = 0;
+                const timerEl = document.getElementById('chat-timer');
+                timerEl.textContent = '00:00';
+                timerInterval = setInterval(() => {
+                    seconds++;
+                    const min = String(Math.floor(seconds / 60)).padStart(2, '0');
+                    const sec = String(seconds % 60).padStart(2, '0');
+                    timerEl.textContent = `${min}:${sec}`;
+                }, 1000);
+            }
+            function stopTimer() {
+                clearInterval(timerInterval);
+            }
+
+
+            // =================================================================
+            // ГОЛОВНА ЧАСТИНА: ЛОГІКА РОБОТИ З СЕРВЕРОМ (WebSocket)
+            // =================================================================
+            let socket = null;
+            const SERVER_URL = "wss://hearmeapp.onrender.com";
+
+            function connectToServer() {
+                console.log(`🚀 Спроба підключення до сервера: ${SERVER_URL}`);
+                socket = new WebSocket(SERVER_URL);
+
+                socket.onopen = function(event) {
+                    console.log("✅ З'єднання з сервером встановлено!");
+                    showToast("З'єднано з сервером");
+                    sendMessage({ type: 'start_search', mode: currentMode });
+                };
+
+                socket.onmessage = function(event) {
+                    console.log(`📥 Повідомлення від сервера: ${event.data}`);
+                    const message = JSON.parse(event.data);
+                    
+                    // Тут будемо обробляти всі команди від сервера
+                    switch (message.type) {
+                        case 'welcome_message':
+                            showToast(`Сервер: ${message.content}`);
+                            break;
+                        case 'partner_found':
+                            showChatScreen(currentMode);
+                            break;
+                        case 'text_message':
+                            addMessage(message.content, 'partner');
+                            break;
+                        case 'partner_disconnected':
+                            showToast("Співрозмовник від'єднався", true);
+                            endChat();
+                            break;
+                    }
+                };
+
+                socket.onclose = function(event) {
+                    console.warn("🔌 З'єднання з сервером закрито.");
+                    showToast("З'єднання з сервером втрачено", true);
+                    if (chatScreen.style.animationName === 'fadeIn') {
+                        showScreen(mainScreen);
+                    }
+                };
+
+                socket.onerror = function(error) {
+                    console.error(`❌ Помилка WebSocket!`);
+                    showToast("Помилка з'єднання з сервером", true);
+                };
+            }
+
+            function sendMessage(message) {
+                if (socket && socket.readyState === WebSocket.OPEN) {
+                    socket.send(JSON.stringify(message));
+                    console.log(`📤 Відправлено на сервер:`, message);
+                } else {
+                    console.error("Неможливо відправити повідомлення. З'єднання не встановлено.");
+                }
+            }
+        });
+    </script>
+</body>
+</html>
