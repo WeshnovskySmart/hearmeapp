@@ -243,6 +243,7 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            console.log("[Client] 🏁 Скрипт завантажено. Версія з логуванням.");
             // Отримуємо всі елементи
             const allScreens = document.querySelectorAll('.w-full.max-w-md > div');
             const preloaderScreen = document.getElementById('preloader-screen');
@@ -260,6 +261,7 @@
 
             // Функція для перемикання екранів
             function showScreen(screenToShow) {
+                console.log(`[Client UI] 🖥️ Показуємо екран: ${screenToShow.id}`);
                 allScreens.forEach(screen => {
                     if (screen.id === screenToShow.id) {
                         screen.classList.remove('hidden', 'fade-out');
@@ -481,42 +483,52 @@
             const SERVER_URL = "wss://hearmeapp.onrender.com";
 
             function connectToServer() {
-                console.log(`🚀 Спроба підключення до сервера: ${SERVER_URL}`);
+                console.log(`[Client] 🚀 Спроба підключення до сервера: ${SERVER_URL}`);
                 socket = new WebSocket(SERVER_URL);
 
                 socket.onopen = function(event) {
-                    console.log("✅ З'єднання з сервером встановлено!");
+                    console.log("[Client] ✅ З'єднання з сервером встановлено!");
                     showToast("З'єднано з сервером");
                     sendMessage({ type: 'start_search', mode: currentMode });
                 };
 
                 socket.onmessage = function(event) {
-                    console.log(`📥 Повідомлення від сервера: ${event.data}`);
-                    const message = JSON.parse(event.data);
+                    console.log(`[Client] 📥 ОТРИМАНО ПОВІДОМЛЕННЯ:`, event.data);
                     
-                    switch (message.type) {
-                        case 'welcome_message':
-                            // Можна нічого не показувати, або щось інформативне
-                            break;
-                        case 'partner_found':
-                             if (searchScreen.classList.contains('fade-in')) {
-                                showChatScreen(currentMode);
-                            }
-                            break;
-                        case 'text_message':
-                            addMessage(message.content, 'partner');
-                            break;
-                        case 'partner_disconnected':
-                            showToast("Співрозмовник від'єднався", true);
-                            if (chatScreen.classList.contains('fade-in')) {
-                                endChat();
-                            }
-                            break;
+                    try {
+                        const message = JSON.parse(event.data);
+                        console.log(`[Client] ⚙️ ОБРОБКА ПОВІДОМЛЕННЯ:`, message);
+
+                        switch (message.type) {
+                            case 'welcome_message':
+                                // Можна нічого не показувати
+                                break;
+                            case 'partner_found':
+                                console.log(`[Client] 📢 ОТРИМАНО КОМАНДУ partner_found!`);
+                                if (searchScreen.classList.contains('fade-in')) {
+                                    console.log(`[Client] 🏃‍♂️ Переходимо на екран чату...`);
+                                    showChatScreen(currentMode);
+                                } else {
+                                    console.warn(`[Client] ⚠️ Отримано partner_found, але екран пошуку не активний!`);
+                                }
+                                break;
+                            case 'text_message':
+                                addMessage(message.content, 'partner');
+                                break;
+                            case 'partner_disconnected':
+                                showToast("Співрозмовник від'єднався", true);
+                                if (chatScreen.classList.contains('fade-in')) {
+                                    endChat();
+                                }
+                                break;
+                        }
+                    } catch (e) {
+                         console.error("[Client] ❌ НЕ ВДАЛОСЯ ОБРОБИТИ ПОВІДОМЛЕННЯ:", e);
                     }
                 };
 
                 socket.onclose = function(event) {
-                    console.warn("🔌 З'єднання з сервером закрито.");
+                    console.warn("[Client] 🔌 З'єднання з сервером закрито.");
                     showToast("З'єднання з сервером втрачено", true);
                     if (!mainScreen.classList.contains('fade-in')) {
                         showScreen(mainScreen);
@@ -524,7 +536,7 @@
                 };
 
                 socket.onerror = function(error) {
-                    console.error(`❌ Помилка WebSocket!`);
+                    console.error(`[Client] ❌ Помилка WebSocket!`, error);
                     showToast("Помилка з'єднання з сервером", true);
                 };
             }
@@ -532,9 +544,9 @@
             function sendMessage(message) {
                 if (socket && socket.readyState === WebSocket.OPEN) {
                     socket.send(JSON.stringify(message));
-                    console.log(`📤 Відправлено на сервер:`, message);
+                    console.log(`[Client] 📤 Відправлено на сервер:`, message);
                 } else {
-                    console.error("Неможливо відправити повідомлення. З'єднання не встановлено.");
+                    console.error("[Client] Неможливо відправити повідомлення. З'єднання не встановлено.");
                 }
             }
         });
