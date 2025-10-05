@@ -46,6 +46,10 @@ wss.on("connection", (ws) => {
                     handleStartSearch(ws, data.mode);
                     break;
 
+                case "cancel_search":
+                    removeFromWaiting(ws);
+                    break;
+
                 case "text_message":
                     handleTextMessage(ws, data.content);
                     break;
@@ -66,41 +70,36 @@ wss.on("connection", (ws) => {
 });
 
 function handleStartSearch(user, mode) {
-    if (!waitingUsers[mode]) {
-        console.error(`Невірний режим пошуку: ${mode}`);
-        return;
-    }
+    if (!user || user.readyState !== WebSocket.OPEN) return;
+    if (!waitingUsers[mode])
+        return console.error(`Невірний режим пошуку: ${mode}`);
 
-    // Очищуємо "привидів" з черги
-    waitingUsers[mode] = waitingUsers[mode].filter(
-        (p) => p.readyState === WebSocket.OPEN,
+    // Спочатку видаляємо користувача з усіх черг, щоб уникнути дублікатів
+    removeFromWaiting(user);
+
+    const waitingPartner = waitingUsers[mode].find(
+        (p) => p && p.readyState === WebSocket.OPEN && p.id !== user.id,
     );
-
-    const waitingPartner = waitingUsers[mode].find((p) => p.id !== user.id);
 
     if (waitingPartner) {
         console.log(
             `🎉 Знайдено пару! ${user.id} та ${waitingPartner.id} у режимі "${mode}"`,
         );
 
-        waitingUsers[mode] = waitingUsers[mode].filter(
-            (p) => p.id !== waitingPartner.id,
-        );
+        removeFromWaiting(waitingPartner);
 
         const chatId = uuidv4();
-        activeChats[chatId] = [user, waitingPartner];
+        activeChats[chatId] = { user1: user, user2: waitingPartner };
         user.chatId = chatId;
         waitingPartner.chatId = chatId;
 
-        user.send(JSON.stringify({ type: "partner_found" }));
-        waitingPartner.send(JSON.stringify({ type: "partner_found" }));
+        const partnerFoundMessage = JSON.stringify({ type: "partner_found" });
+
+        if (user.readyState === WebSocket.OPEN) user.send(partnerFoundMessage);
+        if (waitingPartner.readyState === WebSocket.OPEN)
+            waitingPartner.send(partnerFoundMessage);
     } else {
         console.log(`⏳ Користувач ${user.id} доданий у чергу "${mode}"`);
-        Object.keys(waitingUsers).forEach((key) => {
-            waitingUsers[key] = waitingUsers[key].filter(
-                (u) => u.id !== user.id,
-            );
-        });
         waitingUsers[mode].push(user);
     }
 }
@@ -109,7 +108,8 @@ function handleTextMessage(sender, content) {
     const chatId = sender.chatId;
     if (!chatId || !activeChats[chatId]) return;
 
-    const receiver = activeChats[chatId].find((p) => p.id !== sender.id);
+    const chat = activeChats[chatId];
+    const receiver = chat.user1.id === sender.id ? chat.user2 : chat.user1;
 
     if (receiver && receiver.readyState === WebSocket.OPEN) {
         receiver.send(
@@ -123,9 +123,9 @@ function handleTextMessage(sender, content) {
 
 function cleanupChat(chatId) {
     if (activeChats[chatId]) {
-        activeChats[chatId].forEach((user) => {
-            if (user) user.chatId = null;
-        });
+        const chat = activeChats[chatId];
+        if (chat.user1) chat.user1.chatId = null;
+        if (chat.user2) chat.user2.chatId = null;
         delete activeChats[chatId];
         console.log(`🧹 Чат ${chatId} видалено.`);
     }
@@ -135,7 +135,8 @@ function handleEndChat(user) {
     const chatId = user.chatId;
     if (!chatId || !activeChats[chatId]) return;
 
-    const partner = activeChats[chatId].find((p) => p.id !== user.id);
+    const chat = activeChats[chatId];
+    const partner = chat.user1.id === user.id ? chat.user2 : chat.user1;
 
     if (partner && partner.readyState === WebSocket.OPEN) {
         partner.send(JSON.stringify({ type: "partner_disconnected" }));
@@ -144,13 +145,21 @@ function handleEndChat(user) {
     cleanupChat(chatId);
 }
 
-function handleDisconnection(user) {
-    // 1. Видаляємо з черги очікування
+function removeFromWaiting(user) {
+    if (!user) return;
     Object.keys(waitingUsers).forEach((mode) => {
-        waitingUsers[mode] = waitingUsers[mode].filter((p) => p.id !== user.id);
+        const index = waitingUsers[mode].findIndex((p) => p.id === user.id);
+        if (index > -1) {
+            waitingUsers[mode].splice(index, 1);
+            console.log(
+                `🚶‍ Користувач ${user.id} видалений з черги "${mode}"`,
+            );
+        }
     });
+}
 
-    // 2. Завершуємо активний чат, якщо він був
+function handleDisconnection(user) {
+    removeFromWaiting(user);
     handleEndChat(user);
 }
 
