@@ -3,6 +3,22 @@ const express = require("express");
 const http = require("http");
 const WebSocket = require("ws");
 const { v4: uuidv4 } = require("uuid");
+const admin = require("firebase-admin");
+
+// ========== ІНІЦІАЛІЗАЦІЯ FIREBASE ==========
+// Перевіряємо, чи є ключ у секретах
+if (!process.env.FIREBASE_CREDS_JSON) {
+    throw new Error("Секретний ключ FIREBASE_CREDS_JSON не знайдено!");
+}
+const serviceAccount = JSON.parse(process.env.FIREBASE_CREDS_JSON);
+
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+});
+
+const db = admin.firestore();
+console.log("✅ Успішно підключено до Firebase Firestore!");
+// ===============================================
 
 // Налаштовуємо сервер
 const port = process.env.PORT || 3000;
@@ -21,7 +37,7 @@ const activeChats = {};
 
 // Базовий маршрут, щоб перевірити, чи працює сервер
 app.get("/", (req, res) => {
-    res.send("Сервер HearMe працює!");
+    res.send("Сервер HearMe працює! Підключення до бази даних успішне.");
 });
 
 // Головна логіка, яка спрацьовує при новому підключенні
@@ -54,7 +70,6 @@ wss.on("connection", (ws) => {
                 case "end_chat":
                     handleEndChat(ws);
                     break;
-                // **НОВЕ: Обробка WebRTC сигналів**
                 case "webrtc_signal":
                     handleWebRTCSignal(ws, data.signal);
                     break;
@@ -114,15 +129,14 @@ function handleStartSearch(user, mode) {
         activeChats[chatId] = { user1, user2 };
         console.log(`[Chat] Створено чат ${chatId}.`);
 
-        // **НОВЕ: Розподіляємо ролі для WebRTC**
         const message1 = JSON.stringify({
             type: "partner_found",
             role: "caller",
-        }); // Той, хто чекав довше - дзвонить
+        });
         const message2 = JSON.stringify({
             type: "partner_found",
             role: "callee",
-        }); // Той, хто щойно прийшов - приймає
+        });
 
         console.log(`[Notify] Повідомляємо ${user1.id} (caller)...`);
         user1.send(message1);
@@ -132,7 +146,6 @@ function handleStartSearch(user, mode) {
     }
 }
 
-// **НОВА ФУНКЦІЯ: Пересилання сигналів**
 function handleWebRTCSignal(sender, signal) {
     const chatId = sender.chatId;
     if (!chatId || !activeChats[chatId]) return;
@@ -142,10 +155,7 @@ function handleWebRTCSignal(sender, signal) {
 
     if (receiver && receiver.readyState === WebSocket.OPEN) {
         receiver.send(
-            JSON.stringify({
-                type: "webrtc_signal",
-                signal: signal,
-            }),
+            JSON.stringify({ type: "webrtc_signal", signal: signal }),
         );
     }
 }
