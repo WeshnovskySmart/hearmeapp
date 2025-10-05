@@ -29,7 +29,6 @@
         .bg-gradient-animated { background: linear-gradient(90deg, var(--gradient-from), var(--gradient-to), var(--gradient-from)); background-size: 200% 100%; animation: gradient-flow 5s ease infinite; }
         @keyframes gradient-flow { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         
-        /* Спрощені анімації, щоб уникнути помилок */
         @keyframes fadeInSimple { from { opacity: 0; } to { opacity: 1; } }
         .fade-in { animation: fadeInSimple 0.4s ease-out forwards; }
         
@@ -85,17 +84,18 @@
             </div>
             <div id="onboarding-steps" class="w-full flex-1 flex items-center justify-center mt-8">
                 <div class="onboarding-step text-center">
-                    <svg class="w-20 h-20 mx-auto text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <svg class="w-20 h-20 mx-auto text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4
+-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     <h3 class="text-2xl font-semibold mt-6">Будьте ввічливими</h3>
                     <p class="text-gray-400 mt-2">Поважайте свого співрозмовника. Образи та токсична поведінка тут неприйнятні.</p>
                 </div>
                 <div class="onboarding-step hidden text-center">
-                    <svg class="w-20 h-20 mx-auto text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    <svg class="w-20 h-20 mx-auto text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                     <h3 class="text-2xl font-semibold mt-6">Без заборонених тем</h3>
                     <p class="text-gray-400 mt-2">Політика, релігія та інші теми, що розпалюють ворожнечу, заборонені.</p>
                 </div>
                 <div class="onboarding-step hidden text-center">
-                    <svg class="w-20 h-20 mx-auto text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    <svg class="w-20 h-20 mx-auto text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                     <h3 class="text-2xl font-semibold mt-6">Насолоджуйтесь!</h3>
                     <p class="text-gray-400 mt-2">Головна мета — знайти цікавих людей та отримати позитивні емоції.</p>
                 </div>
@@ -113,11 +113,11 @@
             </div>
             <div class="flex-grow flex flex-col items-center justify-center space-y-6">
                 <button data-mode="voice" class="start-search-btn w-full max-w-xs text-lg font-bold py-6 bg-gradient-animated text-white rounded-2xl transition-transform duration-200 btn-primary relative overflow-hidden flex items-center justify-center space-x-3">
-                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path></svg>
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path></svg>
                     <span>Голосове спілкування</span>
                 </button>
                 <button data-mode="text" class="start-search-btn w-full max-w-xs text-lg font-bold py-6 bg-gray-700 hover:bg-gray-600 text-white rounded-2xl transition-transform duration-200 active:scale-95 relative overflow-hidden flex items-center justify-center space-x-3">
-                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
                     <span>Текстовий чат</span>
                 </button>
             </div>
@@ -174,13 +174,13 @@
             <!-- Інтерфейс голосового чату -->
             <div id="voice-chat-interface" class="hidden flex-1 flex-col items-center justify-center p-4">
                 <div class="flex items-center justify-around w-full">
-                     <div class="flex flex-col items-center space-y-3">
-                         <div class="w-24 h-24 rounded-full bg-gray-700 flex items-center justify-center border-2 border-transparent transition-all duration-200 speaking">
+                     <div id="user-avatar" class="flex flex-col items-center space-y-3">
+                         <div class="w-24 h-24 rounded-full bg-gray-700 flex items-center justify-center border-2 border-transparent transition-all duration-200">
                              <svg class="w-12 h-12 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
                          </div>
                          <span class="font-semibold">Ви</span>
                      </div>
-                     <div class="flex flex-col items-center space-y-3">
+                     <div id="partner-avatar" class="flex flex-col items-center space-y-3">
                          <div class="w-24 h-24 rounded-full bg-gray-700 flex items-center justify-center border-2 border-transparent transition-all duration-200">
                              <svg class="w-12 h-12 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
                          </div>
@@ -188,7 +188,7 @@
                      </div>
                 </div>
                  <button id="mic-toggle-btn" class="mt-12 p-4 bg-gray-700 rounded-full hover:bg-gray-600 transition-colors">
-                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path></svg>
+                    <svg id="mic-icon" class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path></svg>
                 </button>
             </div>
 
@@ -240,10 +240,13 @@
     <audio id="connect-sound" src="data:audio/wav;base64,UklGRlIAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhZAAAAAAPAAAADwAAABoAAAAlAAAAKgAAAC8AAAAyAAAANwAAADsAAAA/AAAAPwAAAD4AAAA9AAAANwAAADAAAAAqAAAAJQAAAB4AAAAbAAAAFQAAABMAAAAPAAAADQAAAAoAAAAHAAAAAwAAAAEAAAAAAAAA/////wAAAP8AAAD/AAAAAgAAAAcAAAAMAAAADwAAABMAAAAWAAAAHAAAACEAAAApAAAALgAAADIAAAA2AAAAPAAAAD8AAAA/AAAAPgAAADsAAAA3AAAAMgAAACsAAAAkAAAAHAAAABgAAAATAAAADAAAAAgAAAAEAAAAAQAAAAAAAAAA/////wAAAP8AAAD/AAAAAQAAAAYAAAALAAAADgAAABIAAAAVAAAAHAAAASEAAAAoAAAALQAAADEAAAA1AAAAOwAAAD4AAAA+AAAAPAAAADgAAADAAAAArAAAAJQAAAB0AAAAYAAAAEgAAAAwAAAAHAAAAAwAAAAEAAAAAAAAAAP////8AAAD/AAAA/wAAAAEAAAAFAAAACgAAAAsAAAANAAAADQAAAA0AAAAMAAAACwAAAAkAAAAHAAAABgAAAAUAAAAEAAAAAwAAAAIAAAABAAAAAAAAAAD/////AAAA/wAAAP8AAAD/AAAA/wAAAP8AAAD/AAAAAAABAAMABQAHAAsADAAOAA8AEQATABUAFwAZABsAHQAeACAAIgAkACYAKQAqACwALgAwADEAMwA1ADYAOAA6ADwAPgBAAEEAQwBFAEcASQBLAE0ATwBRAFMAVQBXAFkAWwBdAF8AYQBjAGUAZwBpAGsAbQBuAHA"></audio>
     <audio id="disconnect-sound" src="data:audio/wav;base64,UklGRjwAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAAABkYXRhGAAAAAAA/wAAAAEAAAACAAAAAwAAAAQAAAAFAAAABgAAAAcAAAAHAAAABgAAAAUAAAAEAAAAAwAAAAIAAAABAAAAAAAAAAD/AAAA"></audio>
     
+    <!-- **НОВЕ: Аудіо елемент для голосу співрозмовника** -->
+    <audio id="remote-audio" autoplay></audio>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            console.log("[Client] 🏁 Скрипт завантажено. Версія з надійним перемиканням.");
-            // Отримуємо всі елементи
+            console.log("[Client] 🏁 Скрипт завантажено. Версія з WebRTC.");
+            // ... (весь попередній код до DOMContentLoaded залишається таким самим) ...
             const allScreens = document.querySelectorAll('.w-full.max-w-md > div');
             const preloaderScreen = document.getElementById('preloader-screen');
             const onboardingScreen = document.getElementById('onboarding-screen');
@@ -258,7 +261,6 @@
             let currentMode = null; 
             let timerInterval = null;
 
-            // **НОВА НАДІЙНА ФУНКЦІЯ ПЕРЕМИКАННЯ ЕКРАНІВ**
             function showScreen(screenToShow) {
                 console.log(`[Client UI] 🖥️ Показуємо екран: ${screenToShow.id}`);
                 allScreens.forEach(screen => {
@@ -267,7 +269,6 @@
                 screenToShow.classList.remove('hidden');
             }
 
-            // Логіка звукових ефектів
             const clickSound = document.getElementById('click-sound');
             const connectSound = document.getElementById('connect-sound');
             const disconnectSound = document.getElementById('disconnect-sound');
@@ -275,65 +276,49 @@
                 try {
                     sound.currentTime = 0;
                     sound.play();
-                } catch(e) {
-                    console.warn("Не вдалося відтворити звук:", e);
-                }
+                } catch(e) { console.warn("Не вдалося відтворити звук:", e); }
             }
             document.querySelectorAll('button, .accordion-header').forEach(el => {
                 el.addEventListener('click', () => playSound(clickSound));
             });
 
-            // Логіка анімованого фону
             const shapeCount = 15;
             for (let i = 0; i < shapeCount; i++) {
                 const shape = document.createElement('div');
                 const size = Math.random() * 80 + 20;
-                shape.style.width = `${size}px`;
-                shape.style.height = `${size}px`;
-                shape.style.top = `${Math.random() * 100}%`;
-                shape.style.left = `${Math.random() * 100}%`;
+                shape.style.width = `${size}px`; shape.style.height = `${size}px`;
+                shape.style.top = `${Math.random() * 100}%`; shape.style.left = `${Math.random() * 100}%`;
                 shape.style.opacity = Math.random() * 0.5 + 0.1;
                 backgroundShapes.appendChild(shape);
             }
             document.body.addEventListener('mousemove', (e) => {
-                const { clientX, clientY } = e;
-                const { innerWidth, innerHeight } = window;
-                const moveX = (clientX / innerWidth - 0.5) * -40;
-                const moveY = (clientY / innerHeight - 0.5) * -40;
+                const { clientX, clientY } = e; const { innerWidth, innerHeight } = window;
+                const moveX = (clientX / innerWidth - 0.5) * -40; const moveY = (clientY / innerHeight - 0.5) * -40;
                 backgroundShapes.style.transform = `translate(${moveX}px, ${moveY}px)`;
             });
 
-            // Логіка Ripple ефекту
             document.body.addEventListener('click', (e) => {
                 const target = e.target.closest('.relative.overflow-hidden');
                 if (target) {
-                    const rect = target.getBoundingClientRect();
-                    const ripple = document.createElement('span');
+                    const rect = target.getBoundingClientRect(); const ripple = document.createElement('span');
                     ripple.className = 'ripple';
-                    ripple.style.left = `${e.clientX - rect.left}px`;
-                    ripple.style.top = `${e.clientY - rect.top}px`;
+                    ripple.style.left = `${e.clientX - rect.left}px`; ripple.style.top = `${e.clientY - rect.top}px`;
                     target.appendChild(ripple);
                     setTimeout(() => ripple.remove(), 600);
                 }
             });
             
-            // Логіка спливаючих повідомлень (тостів)
             function showToast(message, isError = false) {
-                const toastContainer = document.getElementById('toast-container');
-                const toast = document.createElement('div');
+                const toastContainer = document.getElementById('toast-container'); const toast = document.createElement('div');
                 toast.className = `px-4 py-2 rounded-lg shadow-lg text-white text-sm ${isError ? 'bg-red-600' : 'glassmorphism'} fade-in`;
                 toast.textContent = message;
                 toastContainer.appendChild(toast);
-                setTimeout(() => {
-                    toast.remove();
-                }, 3400);
+                setTimeout(() => { toast.remove(); }, 3400);
             }
 
-            // Логіка модального вікна
             let confirmCallback = null;
             function showModal(title, text, onConfirm) {
-                document.getElementById('modal-title').textContent = title;
-                document.getElementById('modal-text').textContent = text;
+                document.getElementById('modal-title').textContent = title; document.getElementById('modal-text').textContent = text;
                 confirmCallback = onConfirm;
                 modal.classList.remove('hidden');
             }
@@ -343,14 +328,10 @@
                 if (confirmCallback) confirmCallback();
             });
 
-            // Логіка акордеону
             document.querySelectorAll('.accordion-header').forEach(header => {
-                header.addEventListener('click', () => {
-                    header.parentElement.classList.toggle('active');
-                });
+                header.addEventListener('click', () => { header.parentElement.classList.toggle('active'); });
             });
 
-            // Логіка онбордингу
             const onboardingSteps = document.querySelectorAll('.onboarding-step');
             const nextOnboardingBtn = document.getElementById('next-onboarding-step');
             let currentStep = 0;
@@ -359,26 +340,18 @@
                 currentStep++;
                 if (currentStep < onboardingSteps.length) {
                     onboardingSteps[currentStep].classList.remove('hidden');
-                    if (currentStep === onboardingSteps.length - 1) {
-                        nextOnboardingBtn.textContent = 'Розпочати!';
-                    }
+                    if (currentStep === onboardingSteps.length - 1) { nextOnboardingBtn.textContent = 'Розпочати!'; }
                 } else {
                     localStorage.setItem('onboardingCompleted', 'true');
                     showScreen(mainScreen);
                 }
             });
 
-            // Перехід з прелоадера
             setTimeout(() => {
                 const onboardingCompleted = localStorage.getItem('onboardingCompleted');
-                if (onboardingCompleted) {
-                    showScreen(mainScreen);
-                } else {
-                    showScreen(onboardingScreen);
-                }
+                if (onboardingCompleted) { showScreen(mainScreen); } else { showScreen(onboardingScreen); }
             }, 2000);
 
-            // Логіка кнопок пошуку та скасування
             document.querySelectorAll('.start-search-btn').forEach(btn => {
                 btn.addEventListener('click', () => startSearch(btn.dataset.mode));
             });
@@ -388,19 +361,16 @@
                 showScreen(mainScreen);
             });
 
-            // Логіка екрану чату
             document.getElementById('end-chat-btn').addEventListener('click', () => {
                 showModal('Завершення діалогу', 'Ви впевнені, що хочете завершити розмову?', endChat);
             });
 
-             // Логіка екрану після чату
             document.getElementById('next-chat-btn').addEventListener('click', () => startSearch(currentMode));
             document.getElementById('main-menu-btn').addEventListener('click', () => {
-                 messageContainer.innerHTML = ''; // Очищуємо повідомлення
+                 messageContainer.innerHTML = '';
                  showScreen(mainScreen);
             });
 
-            // Логіка текстового чату
             const messageForm = document.getElementById('message-form');
             const messageInput = document.getElementById('message-input');
             const messageContainer = document.getElementById('message-container');
@@ -426,18 +396,13 @@
                 messageContainer.scrollTop = messageContainer.scrollHeight;
             }
 
-            // Основні функції управління станом
             function startSearch(mode) {
                 currentMode = mode;
                 document.getElementById('voice-search-animation').classList.toggle('hidden', mode !== 'voice');
                 document.getElementById('text-search-animation').classList.toggle('hidden', mode !== 'text');
                 showScreen(searchScreen);
                 
-                if (!socket || socket.readyState === WebSocket.CLOSED) {
-                    connectToServer();
-                } else {
-                    sendMessage({ type: 'start_search', mode: currentMode });
-                }
+                if (!socket || socket.readyState === WebSocket.CLOSED) { connectToServer(); } else { sendMessage({ type: 'start_search', mode: currentMode }); }
             }
 
             function showChatScreen(mode) {
@@ -451,29 +416,123 @@
             function endChat() {
                 playSound(disconnectSound);
                 stopTimer();
+                closeVoiceChat(); // **НОВЕ: Закриваємо WebRTC з'єднання**
                 sendMessage({ type: 'end_chat' });
                 showScreen(postChatScreen);
             }
 
             function startTimer() {
-                stopTimer();
-                let seconds = 0;
-                const timerEl = document.getElementById('chat-timer');
+                stopTimer(); let seconds = 0; const timerEl = document.getElementById('chat-timer');
                 timerEl.textContent = '00:00';
                 timerInterval = setInterval(() => {
-                    seconds++;
-                    const min = String(Math.floor(seconds / 60)).padStart(2, '0');
+                    seconds++; const min = String(Math.floor(seconds / 60)).padStart(2, '0');
                     const sec = String(seconds % 60).padStart(2, '0');
                     timerEl.textContent = `${min}:${sec}`;
                 }, 1000);
             }
-            function stopTimer() {
-                clearInterval(timerInterval);
-            }
+            function stopTimer() { clearInterval(timerInterval); }
 
 
             // =================================================================
-            // ГОЛОВНА ЧАСТИНА: ЛОГІКА РОБОТИ З СЕРВЕРОМ (WebSocket)
+            // WEBRTC ЛОГІКА
+            // =================================================================
+            let peerConnection;
+            let localStream;
+            const remoteAudio = document.getElementById('remote-audio');
+            const micBtn = document.getElementById('mic-toggle-btn');
+            const micIcon = document.getElementById('mic-icon');
+            const userAvatar = document.getElementById('user-avatar').querySelector('div');
+
+            const iceServers = {
+                iceServers: [ { urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }]
+            };
+
+            async function startVoiceChat(role) {
+                console.log(`[WebRTC] Починаємо голосовий чат у ролі: ${role}`);
+                try {
+                    localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    userAvatar.classList.add('speaking'); // Показуємо, що мікрофон активний
+
+                    peerConnection = new RTCPeerConnection(iceServers);
+                    
+                    localStream.getTracks().forEach(track => {
+                        peerConnection.addTrack(track, localStream);
+                    });
+
+                    peerConnection.ontrack = (event) => {
+                        console.log('[WebRTC] Отримано віддалений аудіопотік!');
+                        if (event.streams && event.streams[0]) {
+                            remoteAudio.srcObject = event.streams[0];
+                        }
+                    };
+
+                    peerConnection.onicecandidate = (event) => {
+                        if (event.candidate) {
+                            console.log('[WebRTC] Новий ICE кандидат, відправляємо...');
+                            sendMessage({ type: 'webrtc_signal', signal: { candidate: event.candidate } });
+                        }
+                    };
+
+                    if (role === 'caller') {
+                        const offer = await peerConnection.createOffer();
+                        await peerConnection.setLocalDescription(offer);
+                        console.log('[WebRTC] Створено Offer, відправляємо...');
+                        sendMessage({ type: 'webrtc_signal', signal: { sdp: peerConnection.localDescription } });
+                    }
+
+                } catch (error) {
+                    console.error("[WebRTC] Помилка доступу до мікрофона або створення з'єднання:", error);
+                    showToast("Не вдалося отримати доступ до мікрофона", true);
+                    endChat();
+                }
+            }
+
+            micBtn.addEventListener('click', () => {
+                if (localStream) {
+                    const audioTrack = localStream.getAudioTracks()[0];
+                    if (audioTrack.enabled) {
+                        audioTrack.enabled = false;
+                        micIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 14.24a4.488 4.488 0 00-1.803-3.5M2.5 9.035A11.082 11.082 0 0113.5 2.5v2.882m-3.5 0V11m-3.5 0a3.5 3.5 0 117 0V5.118" />`;
+                        userAvatar.classList.remove('speaking');
+                    } else {
+                        audioTrack.enabled = true;
+                        micIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />`;
+                        userAvatar.classList.add('speaking');
+                    }
+                }
+            });
+
+            async function handleRtcSignal(signal) {
+                if (signal.sdp) {
+                    await peerConnection.setRemoteDescription(new RTCSessionDescription(signal.sdp));
+                    if (signal.sdp.type === 'offer') {
+                        console.log('[WebRTC] Отримано Offer, створюємо Answer...');
+                        const answer = await peerConnection.createAnswer();
+                        await peerConnection.setLocalDescription(answer);
+                        sendMessage({ type: 'webrtc_signal', signal: { sdp: peerConnection.localDescription } });
+                    }
+                } else if (signal.candidate) {
+                    console.log('[WebRTC] Отримано ICE кандидат, додаємо...');
+                    await peerConnection.addIceCandidate(new RTCIceCandidate(signal.candidate));
+                }
+            }
+
+            function closeVoiceChat() {
+                if (localStream) {
+                    localStream.getTracks().forEach(track => track.stop());
+                    localStream = null;
+                    userAvatar.classList.remove('speaking');
+                }
+                if (peerConnection) {
+                    peerConnection.close();
+                    peerConnection = null;
+                }
+                remoteAudio.srcObject = null;
+                console.log('[WebRTC] Голосовий чат завершено та очищено.');
+            }
+
+            // =================================================================
+            // WebSocket ЛОГІКА
             // =================================================================
             let socket = null;
             const SERVER_URL = "wss://hearmeapp.onrender.com";
@@ -489,37 +548,31 @@
                 };
 
                 socket.onmessage = function(event) {
-                    console.log(`[Client] 📥 ОТРИМАНО ПОВІДОМЛЕННЯ:`, event.data);
-                    
                     try {
                         const message = JSON.parse(event.data);
                         console.log(`[Client] ⚙️ ОБРОБКА ПОВІДОМЛЕННЯ:`, message);
 
                         switch (message.type) {
-                            case 'welcome_message':
-                                // Можна нічого не показувати
-                                break;
                             case 'partner_found':
-                                console.log(`[Client] 📢 ОТРИМАНО КОМАНДУ partner_found!`);
-                                if (!chatScreen.classList.contains('hidden')) {
-                                     console.warn(`[Client] ⚠️ Отримано partner_found, але ми вже в чаті! Ігноруємо.`);
-                                     return;
-                                }
+                                console.log(`[Client] 📢 ОТРИМАНО КОМАНДУ partner_found! Роль: ${message.role}`);
                                 if (searchScreen.classList.contains('hidden')) {
-                                    console.warn(`[Client] ⚠️ Отримано partner_found, але екран пошуку не активний! Ігноруємо.`);
+                                    console.warn(`[Client] ⚠️ Отримано partner_found, але екран пошуку не активний!`);
                                     return;
                                 }
-                                console.log(`[Client] 🏃‍♂️ Переходимо на екран чату...`);
                                 showChatScreen(currentMode);
+                                if (currentMode === 'voice') {
+                                    startVoiceChat(message.role);
+                                }
                                 break;
                             case 'text_message':
                                 addMessage(message.content, 'partner');
                                 break;
                             case 'partner_disconnected':
                                 showToast("Співрозмовник від'єднався", true);
-                                if (!chatScreen.classList.contains('hidden')) {
-                                    endChat();
-                                }
+                                if (!chatScreen.classList.contains('hidden')) { endChat(); }
+                                break;
+                            case 'webrtc_signal':
+                                if (peerConnection) { handleRtcSignal(message.signal); }
                                 break;
                         }
                     } catch (e) {
@@ -530,9 +583,8 @@
                 socket.onclose = function(event) {
                     console.warn("[Client] 🔌 З'єднання з сервером закрито.");
                     showToast("З'єднання з сервером втрачено", true);
-                    if (!mainScreen.classList.contains('hidden')) {
-                        showScreen(mainScreen);
-                    }
+                    closeVoiceChat();
+                    if (!mainScreen.classList.contains('hidden')) { showScreen(mainScreen); }
                 };
 
                 socket.onerror = function(error) {
@@ -544,7 +596,6 @@
             function sendMessage(message) {
                 if (socket && socket.readyState === WebSocket.OPEN) {
                     socket.send(JSON.stringify(message));
-                    console.log(`[Client] 📤 Відправлено на сервер:`, message);
                 } else {
                     console.error("[Client] Неможливо відправити повідомлення. З'єднання не встановлено.");
                 }
