@@ -72,47 +72,60 @@ function handleStartSearch(user, mode) {
         return console.error(`[Error] Невірний режим пошуку: ${mode}`);
     console.log(`[Search] Користувач ${user.id} шукає '${mode}' чат.`);
 
-    // Видаляємо користувача з усіх попередніх черг
+    // Видаляємо користувача з усіх попередніх черг, щоб уникнути дублікатів
     removeFromWaiting(user);
 
-    // Перевіряємо, чи є хтось у черзі
-    if (waitingUsers[mode].length > 0) {
-        // Є! Беремо першого користувача з черги
-        const partner = waitingUsers[mode].shift(); // .shift() дістає і видаляє перший елемент
+    // Додаємо користувача у відповідну чергу
+    waitingUsers[mode].push(user);
+    console.log(
+        `[Queue] Користувач ${user.id} доданий у чергу '${mode}'. В черзі зараз: ${waitingUsers[mode].length}`,
+    );
 
-        // Перевіряємо, чи партнер ще на зв'язку
-        if (!partner || partner.readyState !== WebSocket.OPEN) {
+    // ПЕРЕВІРКА: Якщо в черзі є двоє або більше людей
+    if (waitingUsers[mode].length >= 2) {
+        console.log(
+            `[Match] В черзі є ${waitingUsers[mode].length} користувачів. Створюємо пару!`,
+        );
+
+        // Беремо перших двох з черги
+        const user1 = waitingUsers[mode].shift();
+        const user2 = waitingUsers[mode].shift();
+
+        // Перевіряємо, чи обидва ще на зв'язку
+        if (
+            !user1 ||
+            user1.readyState !== WebSocket.OPEN ||
+            !user2 ||
+            user2.readyState !== WebSocket.OPEN
+        ) {
             console.log(
-                `[Ghost] Знайдено "привида" у черзі. Повторюємо пошук для ${user.id}`,
+                `[Ghost] Один зі співрозмовників від'єднався. Повертаємо живих у чергу.`,
             );
-            // Партнер від'єднався, поки чекав. Рекурсивно запускаємо пошук для поточного користувача ще раз.
-            handleStartSearch(user, mode);
+            // Якщо хтось від'єднався, повертаємо "живого" назад у чергу
+            if (user1 && user1.readyState === WebSocket.OPEN)
+                waitingUsers[mode].unshift(user1);
+            if (user2 && user2.readyState === WebSocket.OPEN)
+                waitingUsers[mode].unshift(user2);
             return;
         }
 
-        console.log(`[Match] 🎉 Знайдено пару! ${user.id} та ${partner.id}.`);
+        console.log(`[Match] 🎉 Створено пару: ${user1.id} та ${user2.id}.`);
 
         // Створюємо для них чат
         const chatId = uuidv4();
-        user.chatId = chatId;
-        partner.chatId = chatId;
-        activeChats[chatId] = { user1: user, user2: partner };
+        user1.chatId = chatId;
+        user2.chatId = chatId;
+        activeChats[chatId] = { user1, user2 };
         console.log(`[Chat] Створено чат ${chatId}.`);
 
         // Повідомляємо обох користувачів
         const message = JSON.stringify({ type: "partner_found" });
 
-        console.log(`[Notify] Повідомляємо ${user.id}...`);
-        user.send(message);
+        console.log(`[Notify] Повідомляємо ${user1.id}...`);
+        user1.send(message);
 
-        console.log(`[Notify] Повідомляємо ${partner.id}...`);
-        partner.send(message);
-    } else {
-        // Якщо нікого немає, додаємо користувача у чергу
-        waitingUsers[mode].push(user);
-        console.log(
-            `[Queue] Користувач ${user.id} доданий у чергу '${mode}'. Поточна черга: ${waitingUsers[mode].length}`,
-        );
+        console.log(`[Notify] Повідомляємо ${user2.id}...`);
+        user2.send(message);
     }
 }
 
