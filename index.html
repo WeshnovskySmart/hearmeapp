@@ -98,12 +98,14 @@
         <!-- Екран пошуку -->
         <div id="search-screen" class="hidden w-full h-full flex flex-col p-4">
             <div class="flex-grow flex flex-col items-center justify-center">
-                <div id="voice-search-animation" class="hidden w-64 h-64 relative flex items-center justify-center">
-                    <div class="w-full h-full rounded-full border-2 border-[var(--gradient-to)] opacity-30"></div>
-                    <div class="w-2/3 h-2/3 rounded-full border-2 border-[var(--gradient-to)] opacity-40 absolute"></div>
-                    <div class="w-1/3 h-1/3 rounded-full border-2 border-[var(--gradient-to)] opacity-50 absolute"></div>
-                    <div class="radar-scanner w-full h-full rounded-full absolute"></div>
-                    <svg class="w-16 h-16 text-[var(--gradient-to)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path></svg>
+                <div id="voice-search-animation" class="hidden w-64 h-64 relative">
+                    <div class="radar-circle"></div>
+                    <div class="radar-circle" style="animation-delay: 1s;"></div>
+                    <div class="radar-circle" style="animation-delay: 2s;"></div>
+                    <div class="radar-scanner"></div>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <svg class="w-16 h-16 text-[var(--gradient-to)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path></svg>
+                    </div>
                 </div>
                 <div id="text-search-animation" class="hidden w-64 h-64 flex items-center justify-center">
                      <svg class="w-24 h-24 text-orange-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
@@ -141,7 +143,7 @@
                 <canvas id="audio-visualizer" class="w-full h-24"></canvas>
                  <button id="mic-toggle-btn" class="p-5 bg-gray-700 rounded-full hover:bg-gray-600 transition-colors">
                     <svg id="mic-icon" class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path></svg>
-                    <svg id="mic-off-icon" class="w-8 h-8 text-white hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L6.343 5.343m11.314 0L6.343 16.657" /></svg>
+                    <svg id="mic-off-icon" class="w-8 h-8 text-white hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m-2.121-2.121a3 3 0 010 4.242M6.343 17.657l8.486-8.486M12 12a1 1 0 11-2 0 1 1 0 012 0zM5 12a7 7 0 017-7" /></svg>
                 </button>
             </div>
 
