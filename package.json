@@ -1,16 +1,17 @@
 {
   "name": "hearme-backend",
   "version": "1.0.0",
-  "description": "Backend for HearMe chat roulette app",
+  "description": "Backend for HearMe Telegram Mini App",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
   "dependencies": {
     "express": "^4.19.2",
+    "uuid": "^9.0.1",
     "ws": "^8.17.0"
-  },
-  "engines": {
-    "node": ">=18"
   }
 }
