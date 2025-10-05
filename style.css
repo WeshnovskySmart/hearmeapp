@@ -1,0 +1,47 @@
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #111827;
+    color: #f9fafb;
+    overflow: hidden; 
+    -webkit-tap-highlight-color: transparent;
+}
+
+:root {
+    --gradient-from: #ef4444;
+    --gradient-to: #f97316;
+    --glow-color: rgba(239, 68, 68, 0.5);
+}
+
+.text-gradient { background-image: linear-gradient(to right, var(--gradient-from), var(--gradient-to)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.bg-gradient-animated { background: linear-gradient(90deg, var(--gradient-from), var(--gradient-to), var(--gradient-from)); background-size: 200% 100%; animation: gradient-flow 5s ease infinite; }
+@keyframes gradient-flow { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+@keyframes fadeInSimple { from { opacity: 0; } to { opacity: 1; } }
+.fade-in { animation: fadeInSimple 0.4s ease-out forwards; }
+
+#background-shapes { transition: transform 0.5s ease-out; }
+#background-shapes div { position: absolute; border-radius: 50%; background: linear-gradient(to right,
+    rgba(239, 68, 68, 0.1), 
+    rgba(249, 115, 22, 0.1)
+); transition: transform 10s linear; }
+
+.glassmorphism { background: rgba(31, 41, 55, 0.6); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+
+.btn-primary:hover { box-shadow: 0 0 25px var(--glow-color); }
+.btn-primary:active { transform: scale(0.97); }
+
+.ripple { position: absolute; border-radius: 50%; background: rgba(255, 255, 255, 0.3); transform: scale(0); animation: ripple-effect 0.6s linear; }
+@keyframes ripple-effect { to { transform: scale(4); opacity: 0; } }
+
+/* Анімації пошуку */
+@keyframes radar-sweep { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.radar-scanner::after { content: ''; position: absolute; left: 50%; top: 0; width: 50%; height: 100%; background: linear-gradient(to top, transparent, var(--gradient-to)); transform-origin: 0 100%; animation: radar-sweep 2s linear infinite; opacity: 0.3; }
+@keyframes typing-dots { 0%, 20% { content: '.'; } 40% { content: '..'; } 60%, 100% { content: '...'; } }
+.typing-animation::after { content: '.'; display: inline-block; animation: typing-dots 1.5s steps(3, end) infinite; }
+
+/* Інші стилі */
+.accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-in-out; }
+.active .accordion-content { max-height: 500px; }
+.active .accordion-icon { transform: rotate(180deg); }
+.chat-message { max-width: 75%; }
+.speaking { box-shadow: 0 0 15px 3px var(--gradient-to); }
